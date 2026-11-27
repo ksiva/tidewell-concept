@@ -4,7 +4,7 @@ import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import HotelCard from "../../components/HotelCard.astro";
 import { hotels, type Hotel } from "../../data/hotels";
-import { photo } from "../../data/photos";
+import { photo, alt } from "../../data/photos";
 
 export function getStaticPaths() {
   return hotels.map((h) => ({ params: { slug: h.slug }, props: { h } }));
@@ -21,7 +21,7 @@ const film = h.slug === "casa-ombrella" ? {
     { at: [0.3, 0.66], k: "Under the arches", t: "The road passes over the village. Take the steps down." },
     { at: [0.66, 1.01], k: "Piazza Umberto I", t: "The church above, the beach below. Our door is the yellow one." },
   ],
-  stops: [{ at: 0, n: "Amalfi" }, { at: 0.36, n: "Arches" }, { at: 0.72, n: "Piazza" }, { at: 0.98, n: "Casa Ombrella" }],
+  stops: [{ at: 0, n: "Amalfi" } as { at: number; n: string; short?: string }, { at: 0.36, n: "Arches" }, { at: 0.66, n: "Piazza" }, { at: 0.98, n: "Casa Ombrella", short: "Our door" }],
 } : null;
 const roomTypes = [
   { name: "Classic room", note: "Garden or village side, queen bed", price: h.fromEUR },
@@ -42,9 +42,9 @@ const roomTypes = [
   </section>
 
   <section class="gallery wrap">
-    <div class="g-main frame" style={`view-transition-name: hotel-${h.slug}`}><Image quality={70} src={photo(h.gallery[0])} alt={`${h.name}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
+    <div class="g-main frame"><Image quality={70} src={photo(h.gallery[0])} alt={alt[h.gallery[0]] ?? h.name} style={`view-transition-name: hotel-${h.slug}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
     <div class="g-side">
-      {h.gallery.slice(1, 3).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt="" widths={[500, 800]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
+      {h.gallery.slice(1, 3).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt={alt[g] ?? ""} widths={[500, 800]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
     </div>
   </section>
 
@@ -54,12 +54,12 @@ const roomTypes = [
         <canvas aria-hidden="true"></canvas>
         <div class="wayin__shade"></div>
         <p class="wayin__k eyebrow">The way in · scroll</p>
-        {film.beats.map((b) => (
+        <div class="wayin__beats">{film.beats.map((b) => (
           <div class="wayin__beat" data-at={b.at.join(",")}><p class="eyebrow">{b.k}</p><p class="wayin__t">{b.t}</p></div>
-        ))}
+        ))}</div>
         <div class="wayin__map">
           <span class="wayin__line"><i></i></span>
-          <ol class="wayin__stops">{film.stops.map((s) => <li data-at={s.at} style={`--x:${s.at}`}><span>{s.n}</span></li>)}</ol>
+          <ol class="wayin__stops">{film.stops.map((s) => <li data-at={s.at} style={`--x:${s.at}`}><span class="l">{s.n}</span>{s.short && <span class="s">{s.short}</span>}</li>)}</ol>
         </div>
       </div>
     </section>
@@ -73,12 +73,12 @@ const roomTypes = [
       <h2 class="h2s" data-split>Rooms</h2>
       <ul class="rooms">
         {roomTypes.map((r) => (
-          <li data-fade><div><h3>{r.name}</h3><p class="muted">{r.note}</p></div><p class="rp">from <strong>€{r.price}</strong></p><a class="btn ghost" href="#book">Select</a></li>
+          <li data-fade><div><h3>{r.name}</h3><p class="muted">{r.note}</p></div><p class="rp">from <strong>€{r.price}</strong></p><a class="btn ghost" href="#book" data-room={r.name}>Select</a></li>
         ))}
       </ul>
 
       <div class="strip">
-        {h.gallery.slice(3, 5).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt="" widths={[600, 900]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
+        {h.gallery.slice(3, 5).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt={alt[g] ?? ""} widths={[600, 900]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
       </div>
 
       <h2 class="h2s" data-split>Good to know</h2>
@@ -98,6 +98,7 @@ const roomTypes = [
         <form onsubmit="event.preventDefault(); this.querySelector('.note').hidden=false">
           <label><span>Arrive</span><input type="date" required /></label>
           <label><span>Nights</span><select><option>2</option><option selected>3</option><option>5</option><option>7</option></select></label>
+          <label class="full"><span>Room</span><select name="room">{roomTypes.map((r) => <option>{r.name} · from €{r.price}</option>)}</select></label>
           <label class="full"><span>Guests</span><select><option>1 adult</option><option selected>2 adults</option><option>2 adults, 1 child</option></select></label>
           <button class="btn" type="submit" data-magnetic>Check availability <span class="arr">→</span></button>
           <p class="note" hidden>Concept site: no booking is made.</p>
@@ -115,7 +116,16 @@ const roomTypes = [
   <div class="mbar"><p>From <strong>€{h.fromEUR}</strong> / night</p><a class="btn" href="#book">Check availability</a></div>
 </Base>
 
-<script>import "../../scripts/film.ts";</script>
+<script>
+  import "../../scripts/film.ts";
+  // "Select" on a room row picks that room in the booking card
+  document.querySelectorAll<HTMLAnchorElement>("[data-room]").forEach((a) => a.addEventListener("click", () => {
+    const sel = document.querySelector<HTMLSelectElement>("#book select[name=room]");
+    if (!sel) return;
+    sel.selectedIndex = [...sel.options].findIndex((o) => o.text.startsWith(a.dataset.room!));
+    sel.closest("label")?.animate([{ background: "rgba(196,98,63,.18)" }, { background: "transparent" }], { duration: 900 });
+  }));
+</script>
 
 <style>
   .top { padding-top: 28px; }
@@ -175,9 +185,18 @@ const roomTypes = [
   .wayin__stops li.is-on span { opacity: 1; }
   .wayin__stops li:last-child span { transform: translateX(-100%); }
   .wayin__stops li:first-child span { transform: none; }
+  .wayin__stops .s { display: none; }
+  @media (max-width: 900px) { .wayin__stops .s { display: inline; } }
   /* No motion: one screen, the arrival frame, the last caption */
   :global(html:not(.js-motion)) .wayin { height: 100svh; }
-  :global(html:not(.js-motion)) .wayin__beat:last-of-type { opacity: 1; transform: none; }
+  :global(html:not(.js-motion)) .wayin__beat { opacity: 1; transform: none; position: static; max-width: none; }
+  :global(html:not(.js-motion)) .wayin__beat .wayin__t { font-size: clamp(20px, 1.8vw, 28px); }
+  :global(html:not(.js-motion)) .wayin__stage { display: grid; align-content: end; }
+  :global(html:not(.js-motion)) .wayin__beats { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 110px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  :global(html:not(.js-motion)) .wayin__line i { transform: scaleX(1); }
+  :global(html:not(.js-motion)) .wayin__stops span { opacity: 1; }
+  :global(html:not(.js-motion)) .wayin__stops li::before { background: var(--paper); }
+  @media (max-width: 900px) { :global(html:not(.js-motion)) .wayin__beats { grid-template-columns: 1fr; gap: 12px; bottom: 150px; } }
   @media (max-width: 900px) {
     .title-row, .body { grid-template-columns: 1fr; }
     .gallery { grid-template-columns: 1fr; } .g-side { grid-template-columns: 1fr 1fr; } .g-side .frame { aspect-ratio: 1; }
@@ -185,9 +204,12 @@ const roomTypes = [
     .g3 { grid-template-columns: 1fr; gap: 48px; }
     .facts { grid-template-columns: 1fr; }
     .read { grid-template-columns: 1fr; }
-    .rooms li { grid-template-columns: 1fr auto; } .rooms .btn { display: none; }
-    .wayin__beat { bottom: 120px; right: var(--gutter); }
+    .rooms li { grid-template-columns: 1fr auto; } .rooms .rp { grid-column: 1; } .rooms .btn { grid-column: 2; grid-row: 1 / span 2; min-height: 44px; }
+    .wayin__beat { bottom: 168px; right: var(--gutter); }
+    .wayin__map { bottom: 96px; }
+    .wayin__shade { background: linear-gradient(180deg, rgba(20,32,51,.45), transparent 30%, transparent 45%, rgba(20,32,51,.85)); }
     .wayin__stops span { font-size: 10.5px; }
+    .wayin__stops li:has(.s) .l { display: none; }
     .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--paper); box-shadow: 0 -1px 0 var(--line); padding: 10px var(--gutter); align-items: center; justify-content: space-between; gap: 12px; }
     .mbar p { margin: 0; font-size: 15px; } .mbar .btn { padding: 12px 18px; }
     :global(body) { padding-bottom: 68px; }
