@@ -161,7 +161,7 @@ const roomTypes = [
           if (+guests.value > 2 && room.selectedIndex === 0) { warn.textContent = "A child's bed fits the Sea room or the Suite."; warn.hidden = false; }
         } else $<HTMLElement>("[data-when]").textContent = "Pick a date to see your stay.";
       };
-      [arrive, nights, room, guests].forEach((x) => x.addEventListener("input", calc));
+      [arrive, nights, room, guests].forEach((x) => { x.addEventListener("input", calc); x.addEventListener("change", calc); });
       calc();
       form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -216,7 +216,7 @@ const roomTypes = [
   form .btn { grid-column: 1 / -1; justify-content: center; margin-top: 6px; }
   .note { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--terracotta-dk); }
   form[hidden], .done[hidden] { display: none; }
-  .sum { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 2px; }
+  .sum { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 2px; }
   .sum p { margin: 0; }
   .sum__when { font-size: 14px; color: var(--ink-2); min-height: 1.4em; }
   .sum__row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; margin-top: 6px !important; font-size: 14px; color: var(--ink-2); }
