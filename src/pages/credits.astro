@@ -7,6 +7,7 @@ import credits from "../data/credits.json";
     <h1>Credits</h1>
     <p class="lede">Tidewell is a concept brand made as a portfolio piece. Every hotel, price and story is invented. The photographs are stock and do not show the hotels named.</p>
     <h2>Photography</h2>
+    <p>The film on Casa Ombrella ("The way in") is <a href="https://www.pexels.com/video/15437344/">Atrani by drone</a> from Pexels, used under the <a href="https://www.pexels.com/license/">Pexels License</a>.</p>
     <p>All photographs come from <a href="https://unsplash.com">Unsplash</a> and are used under the <a href="https://unsplash.com/license">Unsplash License</a> (free for commercial use). Source page for each file:</p>
     <ol class="list">{credits.map((c: any) => <li><a href={c.source}>{c.source.replace("https://", "")}</a> <span class="muted">({c.file})</span></li>)}</ol>
     <h2>Type</h2>

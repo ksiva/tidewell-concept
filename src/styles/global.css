@@ -113,3 +113,9 @@ h3 { font-size: clamp(24px, 2.2vw, 32px); line-height: 1.12; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Card → hotel page: the card photo morphs into the hotel's hero (cross-document View Transitions). */
+@view-transition { navigation: auto; }
+::view-transition-group(*) { animation-duration: .7s; animation-timing-function: cubic-bezier(.23, 1, .32, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }

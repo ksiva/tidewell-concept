@@ -18,10 +18,10 @@ const base = import.meta.env.BASE_URL;
     <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#f3eee4" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
-    <script is:inline>if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("js-motion");</script>
+    <script is:inline>if(!matchMedia("(prefers-reduced-motion: reduce)").matches||location.search.includes("motion"))document.documentElement.classList.add("js-motion");</script>
   </head>
   <body>
-    <div class="spec-bar">Concept project<span class="long"> · Tidewell is a fictional brand; hotels, prices and copy are invented. Photos: Unsplash.</span><span class="short"> · fictional brand</span></div>
+    <div class="spec-bar">Concept project<span class="long"> · Tidewell is a fictional brand; hotels, prices and copy are invented. Photos: Unsplash, film: Pexels.</span><span class="short"> · fictional brand</span></div>
     {!bare && <Header tone={tone} />}
     <main id="main"><slot /></main>
     <Footer bare={bare} />

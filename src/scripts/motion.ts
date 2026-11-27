@@ -3,7 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches && !location.search.includes("motion"); // ?motion forces motion for testing
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 // Split headings into words (keeps text readable to screen readers via aria-label).

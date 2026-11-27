@@ -13,6 +13,16 @@ const { h } = Astro.props as { h: Hotel };
 const base = import.meta.env.BASE_URL;
 const similar = hotels.filter((x) => x.slug !== h.slug && (x.region === h.region || x.moods.some((m) => h.moods.includes(m)))).slice(0, 3);
 const story = (await getCollection("journal")).find((s) => s.data.stay === h.slug);
+// "The way in": a scroll film for hotels that have one (footage: Pexels 15437344, Atrani by drone).
+const film = h.slug === "casa-ombrella" ? {
+  base: `${base}film/atrani`, count: 94,
+  beats: [
+    { at: [0, 0.3], k: "From Amalfi", t: "Ten minutes on foot along the coast road, SS163." },
+    { at: [0.3, 0.66], k: "Under the arches", t: "The road passes over the village. Take the steps down." },
+    { at: [0.66, 1.01], k: "Piazza Umberto I", t: "The church above, the beach below. Our door is the yellow one." },
+  ],
+  stops: [{ at: 0, n: "Amalfi" }, { at: 0.36, n: "Arches" }, { at: 0.72, n: "Piazza" }, { at: 0.98, n: "Casa Ombrella" }],
+} : null;
 const roomTypes = [
   { name: "Classic room", note: "Garden or village side, queen bed", price: h.fromEUR },
   { name: "Sea room", note: "Private terrace facing the water", price: Math.round(h.fromEUR * 1.35) },
@@ -32,11 +42,28 @@ const roomTypes = [
   </section>
 
   <section class="gallery wrap">
-    <div class="g-main frame" data-reveal><Image quality={70} src={photo(h.gallery[0])} alt={`${h.name}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
+    <div class="g-main frame" style={`view-transition-name: hotel-${h.slug}`}><Image quality={70} src={photo(h.gallery[0])} alt={`${h.name}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
     <div class="g-side">
       {h.gallery.slice(1, 3).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt="" widths={[500, 800]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
     </div>
   </section>
+
+  {film && (
+    <section class="wayin" data-film data-base={film.base} data-count={film.count} aria-label="How to get here">
+      <div class="wayin__stage">
+        <canvas aria-hidden="true"></canvas>
+        <div class="wayin__shade"></div>
+        <p class="wayin__k eyebrow">The way in · scroll</p>
+        {film.beats.map((b) => (
+          <div class="wayin__beat" data-at={b.at.join(",")}><p class="eyebrow">{b.k}</p><p class="wayin__t">{b.t}</p></div>
+        ))}
+        <div class="wayin__map">
+          <span class="wayin__line"><i></i></span>
+          <ol class="wayin__stops">{film.stops.map((s) => <li data-at={s.at} style={`--x:${s.at}`}><span>{s.n}</span></li>)}</ol>
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="body wrap">
     <div class="copy">
@@ -88,6 +115,8 @@ const roomTypes = [
   <div class="mbar"><p>From <strong>€{h.fromEUR}</strong> / night</p><a class="btn" href="#book">Check availability</a></div>
 </Base>
 
+<script>import "../../scripts/film.ts";</script>
+
 <style>
   .top { padding-top: 28px; }
   .crumbs { font-size: 14px; color: var(--ink-3); margin-bottom: clamp(32px, 5vw, 64px); }
@@ -125,6 +154,30 @@ const roomTypes = [
   .similar { padding: clamp(80px, 10vw, 140px) var(--gutter); } .similar h2 { margin-bottom: 44px; } .similar h2 em { font-style: italic; }
   .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
   .mbar { display: none; }
+  /* The way in: tall section, sticky stage, the film played by scroll */
+  .wayin { position: relative; height: 340svh; margin-top: clamp(64px, 8vw, 112px); }
+  .wayin__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: var(--ink); color: var(--paper); }
+  .wayin canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wayin__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,32,51,.45), transparent 30%, transparent 55%, rgba(20,32,51,.7)); pointer-events: none; }
+  .wayin__k { position: absolute; left: var(--gutter); top: 84px; margin: 0; color: var(--limewash); }
+  .wayin__beat { position: absolute; left: var(--gutter); bottom: 140px; max-width: 560px; opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .9s var(--ease); }
+  .wayin__beat.is-on { opacity: 1; transform: none; }
+  .wayin__beat .eyebrow { color: var(--limewash); margin: 0 0 10px; }
+  .wayin__t { font-family: var(--f-display); font-size: clamp(30px, 3.8vw, 58px); line-height: 1.04; margin: 0; text-wrap: balance; }
+  .wayin__map { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 48px; }
+  .wayin__line { display: block; height: 1px; background: rgba(243,238,228,.3); }
+  .wayin__line i { display: block; height: 100%; background: var(--paper); transform-origin: left; transform: scaleX(0); }
+  .wayin__stops { list-style: none; margin: 0; padding: 0; position: relative; height: 34px; }
+  .wayin__stops li { position: absolute; top: -4px; left: calc(var(--x) * 100%); }
+  .wayin__stops li::before { content: ""; display: block; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); border: 1.5px solid var(--paper); margin-left: -4.5px; transition: background .4s; }
+  .wayin__stops li.is-on::before { background: var(--paper); }
+  .wayin__stops span { position: absolute; top: 16px; transform: translateX(-50%); white-space: nowrap; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; transition: opacity .4s; }
+  .wayin__stops li.is-on span { opacity: 1; }
+  .wayin__stops li:last-child span { transform: translateX(-100%); }
+  .wayin__stops li:first-child span { transform: none; }
+  /* No motion: one screen, the arrival frame, the last caption */
+  :global(html:not(.js-motion)) .wayin { height: 100svh; }
+  :global(html:not(.js-motion)) .wayin__beat:last-of-type { opacity: 1; transform: none; }
   @media (max-width: 900px) {
     .title-row, .body { grid-template-columns: 1fr; }
     .gallery { grid-template-columns: 1fr; } .g-side { grid-template-columns: 1fr 1fr; } .g-side .frame { aspect-ratio: 1; }
@@ -133,6 +186,8 @@ const roomTypes = [
     .facts { grid-template-columns: 1fr; }
     .read { grid-template-columns: 1fr; }
     .rooms li { grid-template-columns: 1fr auto; } .rooms .btn { display: none; }
+    .wayin__beat { bottom: 120px; right: var(--gutter); }
+    .wayin__stops span { font-size: 10.5px; }
     .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--paper); box-shadow: 0 -1px 0 var(--line); padding: 10px var(--gutter); align-items: center; justify-content: space-between; gap: 12px; }
     .mbar p { margin: 0; font-size: 15px; } .mbar .btn { padding: 12px 18px; }
     :global(body) { padding-bottom: 68px; }

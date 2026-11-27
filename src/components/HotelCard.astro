@@ -8,7 +8,7 @@ const h = hotel;
 ---
 <article class={`card ${size}`} data-tags={[h.region, ...h.moods].join("|")}>
   <a href={`${base}hotels/${h.slug}/`} class="hit" data-cursor="View">
-    <div class="frame img" data-drift>
+    <div class="frame img" data-drift style={`view-transition-name: hotel-${h.slug}`}>
       <div class="zoom"><Image quality={70} src={photo(h.cover)} alt={`${h.name}, ${h.place}`} widths={[480, 800, 1200]} sizes="(max-width: 700px) 92vw, 33vw" loading={eager ? "eager" : "lazy"} /></div>
       <span class="rooms">{h.rooms} rooms</span>
       <div class="peek"><span>{h.moods.slice(0, 2).join(" · ")}</span><span>From €{h.fromEUR}</span></div>
