@@ -95,14 +95,25 @@ const roomTypes = [
     <aside class="book" id="book" aria-label="Check availability">
       <div class="book-in">
         <p class="bp">From <strong>€{h.fromEUR}</strong> <span>a night, breakfast included</span></p>
-        <form onsubmit="event.preventDefault(); this.querySelector('.note').hidden=false">
-          <label><span>Arrive</span><input type="date" required /></label>
-          <label><span>Nights</span><select><option>2</option><option selected>3</option><option>5</option><option>7</option></select></label>
-          <label class="full"><span>Room</span><select name="room">{roomTypes.map((r) => <option>{r.name} · from €{r.price}</option>)}</select></label>
-          <label class="full"><span>Guests</span><select><option>1 adult</option><option selected>2 adults</option><option>2 adults, 1 child</option></select></label>
-          <button class="btn" type="submit" data-magnetic>Check availability <span class="arr">→</span></button>
-          <p class="note" hidden>Concept site: no booking is made.</p>
+        <form class="stay" data-open={h.facts.find((f) => /^Open /.test(f)) ?? ""} data-hotel={h.name}>
+          <label><span>Arrive</span><input type="date" name="arrive" required /></label>
+          <label><span>Nights</span><select name="nights"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>7</option></select></label>
+          <label class="full"><span>Room</span><select name="room">{roomTypes.map((r) => <option value={r.price}>{r.name} · from €{r.price}</option>)}</select></label>
+          <label class="full"><span>Guests</span><select name="guests"><option value="1">1 adult</option><option value="2" selected>2 adults</option><option value="3">2 adults, 1 child</option></select></label>
+          <div class="sum full" aria-live="polite">
+            <p class="sum__when" data-when>Pick a date to see your stay.</p>
+            <p class="sum__row"><span data-line>3 nights × €{h.fromEUR}</span><strong data-total>€{h.fromEUR * 3}</strong></p>
+            <p class="sum__warn" data-warn hidden></p>
+          </div>
+          <button class="btn" type="submit" data-magnetic>Request these dates <span class="arr">→</span></button>
         </form>
+        <div class="done" hidden tabindex="-1">
+          <p class="eyebrow">Request sent · <span data-ref></span></p>
+          <h3 data-done-t></h3>
+          <p class="muted" data-done-s></p>
+          <p class="note">Concept site: no booking is made, and nothing was sent.</p>
+          <button class="btn ghost" type="button" data-again>Change dates</button>
+        </div>
         <ul class="reassure"><li>{h.facts[1]}</li><li>Best rate when you book with us</li><li>Reply from a real person within a day</li></ul>
       </div>
     </aside>
@@ -118,13 +129,58 @@ const roomTypes = [
 
 <script>
   import "../../scripts/film.ts";
-  // "Select" on a room row picks that room in the booking card
-  document.querySelectorAll<HTMLAnchorElement>("[data-room]").forEach((a) => a.addEventListener("click", () => {
-    const sel = document.querySelector<HTMLSelectElement>("#book select[name=room]");
-    if (!sel) return;
-    sel.selectedIndex = [...sel.options].findIndex((o) => o.text.startsWith(a.dataset.room!));
-    sel.closest("label")?.animate([{ background: "rgba(196,98,63,.18)" }, { background: "transparent" }], { duration: 900 });
-  }));
+  // The booking card works out the stay: dates, nights × room rate, a season check, then a confirmation state.
+  {
+    const form = document.querySelector<HTMLFormElement>("form.stay");
+    if (form) {
+      const done = document.querySelector<HTMLElement>(".done")!;
+      const $ = <T extends Element>(s: string) => form.querySelector<T>(s)!;
+      const arrive = $<HTMLInputElement>("[name=arrive]"), nights = $<HTMLSelectElement>("[name=nights]"), room = $<HTMLSelectElement>("[name=room]"), guests = $<HTMLSelectElement>("[name=guests]");
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      arrive.min = today.toISOString().slice(0, 10);
+      const fmt = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+      const open = (form.dataset.open || "").match(/Open (\w+) to (\w+)/);
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const season = open ? [months.indexOf(open[1]), months.indexOf(open[2])] : null;
+      const total = { v: 0 };
+      const calc = () => {
+        const n = +nights.value, rate = +room.value, roomName = room.selectedOptions[0].text.split(" · ")[0];
+        const t = n * rate;
+        $<HTMLElement>("[data-line]").textContent = `${n} nights × €${rate} · ${roomName}`;
+        const el = $<HTMLElement>("[data-total]");
+        const from = total.v; total.v = t;
+        const k0 = performance.now();
+        const step = (k: number) => { const q = Math.min(1, (k - k0) / 450); el.textContent = `€${Math.round(from + (t - from) * (1 - (1 - q) ** 3))}`; if (q < 1) requestAnimationFrame(step); };
+        requestAnimationFrame(step);
+        const warn = $<HTMLElement>("[data-warn]"); warn.hidden = true;
+        if (arrive.value) {
+          const a = new Date(arrive.value + "T12:00:00"), out = new Date(a); out.setDate(a.getDate() + n);
+          $<HTMLElement>("[data-when]").textContent = `In ${fmt(a)} · out ${fmt(out)}`;
+          if (a < today) { warn.textContent = "That date has passed."; warn.hidden = false; }
+          else if (season && (a.getMonth() < season[0] || out.getMonth() > season[1] || a.getFullYear() !== out.getFullYear())) { warn.textContent = `${form.dataset.hotel} is open ${open![1]} to ${open![2]}. Try a date in season.`; warn.hidden = false; }
+          if (+guests.value > 2 && room.selectedIndex === 0) { warn.textContent = "A child's bed fits the Sea room or the Suite."; warn.hidden = false; }
+        } else $<HTMLElement>("[data-when]").textContent = "Pick a date to see your stay.";
+      };
+      [arrive, nights, room, guests].forEach((x) => x.addEventListener("input", calc));
+      calc();
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        calc();
+        if (!$<HTMLElement>("[data-warn]").hidden) { $<HTMLElement>("[data-warn]").animate([{ transform: "translateX(-4px)" }, { transform: "translateX(4px)" }, { transform: "none" }], { duration: 240 }); return; }
+        const n = +nights.value, a = new Date(arrive.value + "T12:00:00"), out = new Date(a); out.setDate(a.getDate() + n);
+        done.querySelector("[data-ref]")!.textContent = "TW-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+        done.querySelector("[data-done-t]")!.textContent = `${room.selectedOptions[0].text.split(" · ")[0]}, ${n} nights`;
+        done.querySelector("[data-done-s]")!.textContent = `${fmt(a)} to ${fmt(out)} · ${guests.selectedOptions[0].text} · €${n * +room.value} in total. A real person replies within a day.`;
+        form.hidden = true; done.hidden = false; done.focus();
+      });
+      done.querySelector("[data-again]")!.addEventListener("click", () => { done.hidden = true; form.hidden = false; arrive.focus(); });
+      // "Select" on a room row picks that room here and recalculates
+      document.querySelectorAll<HTMLAnchorElement>("[data-room]").forEach((a) => a.addEventListener("click", () => {
+        room.selectedIndex = [...room.options].findIndex((o) => o.text.startsWith(a.dataset.room!));
+        calc();
+      }));
+    }
+  }
 </script>
 
 <style>
@@ -159,6 +215,18 @@ const roomTypes = [
   label input, label select { border: 0; background: transparent; padding: 2px 0; font-size: 15px; min-width: 0; }
   form .btn { grid-column: 1 / -1; justify-content: center; margin-top: 6px; }
   .note { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--terracotta-dk); }
+  form[hidden], .done[hidden] { display: none; }
+  .sum { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 2px; }
+  .sum p { margin: 0; }
+  .sum__when { font-size: 14px; color: var(--ink-2); min-height: 1.4em; }
+  .sum__row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; margin-top: 6px !important; font-size: 14px; color: var(--ink-2); }
+  .sum__row [data-line] { flex: 1 1 160px; }
+  .sum__row strong { font-family: var(--f-display); font-size: 30px; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .sum__warn { margin-top: 8px !important; font-size: 13.5px; color: var(--terracotta-dk); }
+  .done { display: grid; gap: 10px; animation: doneIn .6s cubic-bezier(.23,1,.32,1); }
+  .done h3 { font-size: 28px; margin: 0; }
+  .done .btn { justify-self: start; }
+  @keyframes doneIn { from { opacity: 0; transform: translateY(8px); } }
   .reassure { list-style: none; padding: 0; margin: 20px 0 0; font-size: 14px; display: grid; gap: 6px; color: var(--ink-2); }
   .reassure li::before { content: "✓"; color: var(--olive); margin-right: 8px; font-weight: 700; }
   .similar { padding: clamp(80px, 10vw, 140px) var(--gutter); } .similar h2 { margin-bottom: 44px; } .similar h2 em { font-style: italic; }

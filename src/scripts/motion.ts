@@ -86,8 +86,10 @@ toggle?.addEventListener("click", () => {
   toggle.setAttribute("aria-expanded", String(open));
 });
 
-// Cursor + magnetic buttons (fine pointers only)
-if (finePointer && !reduce) {
+// Magnetic buttons (fine pointers only). The custom cursor was cut on review (27-11): it fought form fields and
+// native cues; a hotel site keeps the native pointer.
+const WITH_CURSOR = false;
+if (finePointer && !reduce && WITH_CURSOR) {
   const cur = document.createElement("div");
   cur.className = "cursor"; cur.innerHTML = "<span></span>";
   document.body.append(cur);
@@ -99,7 +101,8 @@ if (finePointer && !reduce) {
     el.addEventListener("pointerenter", () => { label.textContent = el.dataset.cursor || "View"; cur.classList.add("is-big"); });
     el.addEventListener("pointerleave", () => cur.classList.remove("is-big"));
   });
-
+}
+if (finePointer && !reduce) {
   document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach((el) => {
     const x = gsap.quickTo(el, "x", { duration: 0.5, ease: "elastic.out(1, 0.4)" });
     const y = gsap.quickTo(el, "y", { duration: 0.5, ease: "elastic.out(1, 0.4)" });
