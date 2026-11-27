@@ -20,7 +20,7 @@ const moodRows = [
 ---
 <Base tone="over">
   <section class="hero">
-    <div class="hero-img"><div data-parallax="16" class="px"><Image src={photo(19)} alt="Terrace above the Aegean with agave in the foreground" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" fetchpriority="high" /></div></div>
+    <div class="hero-img"><div data-parallax="16" class="px"><Image quality={70} src={photo(19)} alt="Terrace above the Aegean with agave in the foreground" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" fetchpriority="high" /></div></div>
     <div class="wrap hero-in">
       <p class="eyebrow hero-eb" data-fade data-now>Greece · Italy · Croatia · Mallorca</p>
       <h1 data-split data-now>Small hotels by the <em>Mediterranean</em>, chosen by hand.</h1>
@@ -40,7 +40,7 @@ const moodRows = [
   <section class="feature">
     <div class="wrap feat-grid">
       <a class="feat-img frame" href={`${base}hotels/${feature.slug}/`} data-reveal data-cursor="Open">
-        <Image src={photo(feature.cover)} alt={`${feature.name}, ${feature.place}`} widths={[700, 1100, 1600]} sizes="(max-width: 900px) 92vw, 58vw" />
+        <Image quality={70} src={photo(feature.cover)} alt={`${feature.name}, ${feature.place}`} widths={[700, 1100, 1600]} sizes="(max-width: 900px) 92vw, 58vw" />
       </a>
       <div class="feat-copy">
         <p class="eyebrow" data-fade>Hotel of the season</p>
@@ -78,7 +78,7 @@ const moodRows = [
       ))}
     </ul>
     <div class="mood-float" aria-hidden="true">
-      {moodRows.map((m) => <Image src={photo(m.img)} alt="" widths={[500]} sizes="320px" />)}
+      {moodRows.map((m) => <Image quality={70} src={photo(m.img)} alt="" widths={[500]} sizes="320px" />)}
     </div>
   </section>
 
@@ -87,7 +87,7 @@ const moodRows = [
     <div class="grid3">
       {stories.map((s) => (
         <a class="story" href={`${base}journal/${s.id}/`} data-fade data-cursor="Read">
-          <div class="frame s-img"><div class="zoom"><Image src={photo(s.data.cover)} alt="" widths={[600, 900]} sizes="(max-width: 700px) 92vw, 33vw" /></div></div>
+          <div class="frame s-img"><div class="zoom"><Image quality={70} src={photo(s.data.cover)} alt="" widths={[600, 900]} sizes="(max-width: 700px) 92vw, 33vw" /></div></div>
           <p class="eyebrow">{s.data.kicker}</p>
           <h3>{s.data.title}</h3>
           <p class="muted">{s.data.dek}</p>

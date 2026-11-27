@@ -25,7 +25,7 @@ const offer = (n: number) => Math.round(n * 3 / 4);
           <p class="small">Book by 30 September · free cancellation to 14 days</p>
         </div>
       </div>
-      <div class="lp-img frame" data-reveal><Image src={photo(26)} alt="White village above the caldera at sunset" widths={[700, 1100, 1500]} sizes="(max-width: 900px) 92vw, 46vw" loading="eager" /></div>
+      <div class="lp-img frame" data-reveal><Image quality={70} src={photo(26)} alt="White village above the caldera at sunset" widths={[700, 1100, 1500]} sizes="(max-width: 900px) 92vw, 46vw" loading="eager" /></div>
     </div>
   </section>
 
@@ -40,7 +40,7 @@ const offer = (n: number) => Math.round(n * 3 / 4);
     <div class="offers">
       {picks.map((h) => (
         <article class="o">
-          <a href={`${base}hotels/${h.slug}/`} class="frame o-img" data-cursor="View"><div class="zoom"><Image src={photo(h.cover)} alt={`${h.name}, ${h.place}`} widths={[500, 800]} sizes="(max-width: 900px) 92vw, 30vw" /></div></a>
+          <a href={`${base}hotels/${h.slug}/`} class="frame o-img" data-cursor="View"><div class="zoom"><Image quality={70} src={photo(h.cover)} alt={`${h.name}, ${h.place}`} widths={[500, 800]} sizes="(max-width: 900px) 92vw, 30vw" /></div></a>
           <p class="eyebrow">{h.place}</p>
           <h3>{h.name}</h3>
           <p class="muted">{h.line}</p>

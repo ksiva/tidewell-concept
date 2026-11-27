@@ -25,13 +25,13 @@ const date = new Date(s.data.date).toLocaleDateString("en-GB", { day: "numeric",
       <p class="byline" data-fade data-now>Words by the Tidewell team · {date} · {s.data.minutes} min read</p>
     </header>
 
-    <div class="cover"><div class="frame" data-reveal><Image src={photo(s.data.cover)} alt="" widths={[900, 1500, 2000]} sizes="100vw" loading="eager" /></div></div>
+    <div class="cover"><div class="frame" data-reveal><Image quality={70} src={photo(s.data.cover)} alt="" widths={[900, 1500, 2000]} sizes="100vw" loading="eager" /></div></div>
 
     <div class="a-body wrap">
       <aside class="rail" aria-label="Stay">
         <a class="stay" href={`${base}hotels/${stay.slug}/`} data-cursor="View">
           <p class="eyebrow">Where to stay</p>
-          <div class="frame"><Image src={photo(stay.cover)} alt={stay.name} widths={[400]} sizes="260px" /></div>
+          <div class="frame"><Image quality={70} src={photo(stay.cover)} alt={stay.name} widths={[400]} sizes="260px" /></div>
           <h3>{stay.name}</h3>
           <p class="muted">{stay.place} · from €{stay.fromEUR}</p>
           <span class="link">Check availability</span>
@@ -41,7 +41,7 @@ const date = new Date(s.data.date).toLocaleDateString("en-GB", { day: "numeric",
     </div>
 
     <div class="pair wrap">
-      {s.data.inline.map((n) => <div class="frame" data-reveal><Image src={photo(n)} alt="" widths={[700, 1100]} sizes="(max-width: 800px) 92vw, 46vw" /></div>)}
+      {s.data.inline.map((n) => <div class="frame" data-reveal><Image quality={70} src={photo(n)} alt="" widths={[700, 1100]} sizes="(max-width: 800px) 92vw, 46vw" /></div>)}
     </div>
 
     <section class="cta-band">
@@ -57,7 +57,7 @@ const date = new Date(s.data.date).toLocaleDateString("en-GB", { day: "numeric",
     <div class="g2">
       {next.map((n) => (
         <a class="story" href={`${base}journal/${n.id}/`} data-cursor="Read">
-          <div class="frame"><div class="zoom"><Image src={photo(n.data.cover)} alt="" widths={[600, 900]} sizes="(max-width: 800px) 92vw, 46vw" /></div></div>
+          <div class="frame"><div class="zoom"><Image quality={70} src={photo(n.data.cover)} alt="" widths={[600, 900]} sizes="(max-width: 800px) 92vw, 46vw" /></div></div>
           <p class="eyebrow">{n.data.kicker}</p><h3>{n.data.title}</h3>
         </a>
       ))}

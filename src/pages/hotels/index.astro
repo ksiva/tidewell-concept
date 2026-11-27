@@ -10,6 +10,7 @@ const filters = ["Sea view", "Food", "Village", "Quiet", "Pool", "Romance"];
     <p class="eyebrow" data-fade data-now>The collection</p>
     <h1 data-split data-now>Every hotel, <em>visited first.</em></h1>
     <div class="sb" data-fade data-now><SearchBar /></div>
+    <p class="snote" data-search-note hidden></p>
   </section>
 
   <section class="list wrap">
@@ -27,14 +28,28 @@ const filters = ["Sea view", "Food", "Village", "Quiet", "Pool", "Romance"];
 </Base>
 
 <script>
-  const p = new URLSearchParams(location.search).get("region");
+  const q = new URLSearchParams(location.search);
+  const p = q.get("region");
   if (p) document.querySelector<HTMLButtonElement>(`[data-filter="${CSS.escape(p)}"]`)?.click();
+  // Carry the search into the bar and say what was searched (availability is not live on a concept site).
+  const form = document.querySelector<HTMLFormElement>(".head form");
+  if (form) {
+    for (const k of ["region", "in", "n", "g"]) { const v = q.get(k); const f = form.elements.namedItem(k) as HTMLInputElement | null; if (v && f) f.value = v; }
+    const when = q.get("in");
+    if (when) {
+      const note = document.querySelector<HTMLElement>("[data-search-note]")!;
+      const d = new Date(when).toLocaleDateString("en-GB", { day: "numeric", month: "long" });
+      note.textContent = `${q.get("n") ?? 3} nights from ${d}, ${q.get("g") ?? 2} guests. Concept site: live availability would filter this list.`;
+      note.hidden = false;
+    }
+  }
 </script>
 
 <style>
   .head { padding-top: clamp(48px, 7vw, 104px); padding-bottom: 48px; }
   .head h1 { font-size: clamp(48px, 7vw, 112px); margin: 12px 0 36px; }
   .head h1 em { font-style: italic; }
+  .snote { margin: 14px 0 0; font-size: 15px; color: var(--terracotta-dk); }
   .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 22px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); margin-bottom: 44px; position: sticky; top: 78px; background: var(--limewash); z-index: 5; }
   .filters button { background: transparent; border: 1px solid var(--line); padding: 8px 14px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background .3s, color .3s, border-color .3s; }
   .filters button:hover { border-color: var(--ink); }

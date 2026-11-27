@@ -1,0 +1,30 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { photo } from "../../data/photos";
+const base = import.meta.env.BASE_URL;
+const stories = (await getCollection("journal")).sort((a, b) => b.data.date.localeCompare(a.data.date));
+---
+<Base title="Journal" description="Travel notes, places and guides from the Tidewell coast.">
+  <section class="wrap jh">
+    <p class="eyebrow" data-fade data-now>Journal</p>
+    <h1 data-split data-now>Notes from <em>the coast</em></h1>
+  </section>
+  <section class="wrap jl">
+    {stories.map((s, i) => (
+      <a class="row" href={`${base}journal/${s.id}/`} data-cursor="Read">
+        <div class="frame"><div class="zoom"><Image quality={70} src={photo(s.data.cover)} alt="" widths={[600, 1000]} sizes="(max-width: 800px) 92vw, 45vw" loading={i === 0 ? "eager" : "lazy"} /></div></div>
+        <div><p class="eyebrow">{s.data.kicker} · {s.data.minutes} min</p><h2>{s.data.title}</h2><p class="lede">{s.data.dek}</p><span class="link">Read the story</span></div>
+      </a>
+    ))}
+  </section>
+</Base>
+<style>
+  .jh { padding-top: clamp(56px, 8vw, 110px); padding-bottom: 40px; } .jh h1 em { font-style: italic; }
+  .jl { display: grid; gap: 64px; padding-bottom: clamp(80px, 10vw, 140px); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; text-decoration: none; border-top: 1px solid var(--line); padding-top: 40px; }
+  .row .frame { aspect-ratio: 3 / 2; } .row .zoom { position: absolute; inset: 0; transition: transform 1.2s var(--ease); } .row:hover .zoom { transform: scale(1.05); }
+  .row h2 { margin: 10px 0 14px; } .row .lede { margin: 0 0 20px; }
+  @media (max-width: 800px) { .row { grid-template-columns: 1fr; } }
+</style>

@@ -68,7 +68,7 @@ const stills = ads.filter((a) => a.kind !== "display");
   <section class="b-sec wrap">
     <h2 class="sh">Photography</h2>
     <div class="photos">
-      {[24, 74, 18, 66].map((n) => <div class="frame"><Image src={photo(n)} alt="" widths={[500, 800]} sizes="(max-width: 800px) 46vw, 24vw" /></div>)}
+      {[24, 74, 18, 66].map((n) => <div class="frame"><Image quality={70} src={photo(n)} alt="" widths={[500, 800]} sizes="(max-width: 800px) 46vw, 24vw" /></div>)}
     </div>
     <ul class="rules">
       <li><strong>Real light.</strong> High sun or the hour before sunset; no heavy grades, no filters.</li>
@@ -92,7 +92,7 @@ const stills = ads.filter((a) => a.kind !== "display");
   <section class="b-sec wrap">
     <h2 class="sh">Components</h2>
     <div class="comp">
-      <div class="btns"><a class="btn" href="#">Check availability <span class="arr">→</span></a><a class="btn ghost" href="#">Select</a><a class="link" href="#">All 8 hotels</a></div>
+      <div class="btns"><a class="btn" href={`${base}hotels/lithos-house/#book`}>Check availability <span class="arr">→</span></a><a class="btn ghost" href={`${base}hotels/lithos-house/#book`}>Select</a><a class="link" href={`${base}hotels/`}>All 8 hotels</a></div>
       <div class="comp-card"><HotelCard hotel={hotels[1]} /></div>
     </div>
   </section>
@@ -108,7 +108,7 @@ const stills = ads.filter((a) => a.kind !== "display");
     <p class="lede">One message, "four nights for three", carried from paid social to display to email to the landing page it points at.</p>
     <h3 class="sub">Paid social and email</h3>
     <div class="stills">
-      {stills.map((a) => <figure><img src={`${base}campaign/${a.id}.png`} alt={a.label} loading="lazy" width={a.w} height={a.h} /><figcaption>{a.label}</figcaption></figure>)}
+      {stills.map((a) => <figure><img src={`${base}campaign/${a.id}.jpg`} alt={a.label} loading="lazy" width={a.w} height={a.h} /><figcaption>{a.label}</figcaption></figure>)}
     </div>
     <h3 class="sub">Display (live HTML5, animated)</h3>
     <div class="banners">

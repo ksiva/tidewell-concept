@@ -32,9 +32,9 @@ const roomTypes = [
   </section>
 
   <section class="gallery wrap">
-    <div class="g-main frame" data-reveal><Image src={photo(h.gallery[0])} alt={`${h.name}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
+    <div class="g-main frame" data-reveal><Image quality={70} src={photo(h.gallery[0])} alt={`${h.name}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
     <div class="g-side">
-      {h.gallery.slice(1, 3).map((g) => <div class="frame" data-reveal><Image src={photo(g)} alt="" widths={[500, 800]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
+      {h.gallery.slice(1, 3).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt="" widths={[500, 800]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
     </div>
   </section>
 
@@ -51,7 +51,7 @@ const roomTypes = [
       </ul>
 
       <div class="strip">
-        {h.gallery.slice(3, 5).map((g) => <div class="frame" data-reveal><Image src={photo(g)} alt="" widths={[600, 900]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
+        {h.gallery.slice(3, 5).map((g) => <div class="frame" data-reveal><Image quality={70} src={photo(g)} alt="" widths={[600, 900]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
       </div>
 
       <h2 class="h2s" data-split>Good to know</h2>
@@ -59,7 +59,7 @@ const roomTypes = [
 
       {story && (
         <a class="read" href={`${base}journal/${story.id}/`} data-cursor="Read">
-          <div class="frame"><Image src={photo(story.data.cover)} alt="" widths={[500]} sizes="220px" /></div>
+          <div class="frame"><Image quality={70} src={photo(story.data.cover)} alt="" widths={[500]} sizes="220px" /></div>
           <div><p class="eyebrow">From the journal</p><h3>{story.data.title}</h3><p class="muted">{story.data.dek}</p></div>
         </a>
       )}
