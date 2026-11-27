@@ -3,7 +3,8 @@
 // Pattern from the Highlighter reference (patterns/frames.js + pin.js).
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches && !location.search.includes("motion");
+// The film moves only when you scroll, so it plays even with system animations off (it is your own scroll).
+const reduce = false;
 
 function order(n: number) {
   const seen = new Set<number>(), out: number[] = [];
