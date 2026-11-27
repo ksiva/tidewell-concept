@@ -1,0 +1,140 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import HotelCard from "../../components/HotelCard.astro";
+import { hotels, type Hotel } from "../../data/hotels";
+import { photo } from "../../data/photos";
+
+export function getStaticPaths() {
+  return hotels.map((h) => ({ params: { slug: h.slug }, props: { h } }));
+}
+const { h } = Astro.props as { h: Hotel };
+const base = import.meta.env.BASE_URL;
+const similar = hotels.filter((x) => x.slug !== h.slug && (x.region === h.region || x.moods.some((m) => h.moods.includes(m)))).slice(0, 3);
+const story = (await getCollection("journal")).find((s) => s.data.stay === h.slug);
+const roomTypes = [
+  { name: "Classic room", note: "Garden or village side, queen bed", price: h.fromEUR },
+  { name: "Sea room", note: "Private terrace facing the water", price: Math.round(h.fromEUR * 1.35) },
+  { name: "Suite", note: "Two rooms, terrace, bath with a view", price: Math.round(h.fromEUR * 1.9) },
+];
+---
+<Base title={`${h.name}, ${h.place}`} description={h.line}>
+  <section class="top wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href={`${base}hotels/`}>Hotels</a> / <a href={`${base}hotels/?region=${encodeURIComponent(h.region)}`}>{h.region}</a> / <span>{h.name}</span></nav>
+    <div class="title-row">
+      <div>
+        <p class="eyebrow" data-fade data-now>{h.place}, {h.country} · {h.rooms} rooms</p>
+        <h1 data-split data-now>{h.name}</h1>
+      </div>
+      <p class="lede" data-fade data-now>{h.line}</p>
+    </div>
+  </section>
+
+  <section class="gallery wrap">
+    <div class="g-main frame" data-reveal><Image src={photo(h.gallery[0])} alt={`${h.name}`} widths={[800, 1300, 1800]} sizes="(max-width: 900px) 92vw, 64vw" loading="eager" /></div>
+    <div class="g-side">
+      {h.gallery.slice(1, 3).map((g) => <div class="frame" data-reveal><Image src={photo(g)} alt="" widths={[500, 800]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
+    </div>
+  </section>
+
+  <section class="body wrap">
+    <div class="copy">
+      <h2 class="h2s" data-split>Why we <em>chose it</em></h2>
+      <ol class="why">{h.why.map((w) => <li data-fade>{w}</li>)}</ol>
+
+      <h2 class="h2s" data-split>Rooms</h2>
+      <ul class="rooms">
+        {roomTypes.map((r) => (
+          <li data-fade><div><h3>{r.name}</h3><p class="muted">{r.note}</p></div><p class="rp">from <strong>€{r.price}</strong></p><a class="btn ghost" href="#book">Select</a></li>
+        ))}
+      </ul>
+
+      <div class="strip">
+        {h.gallery.slice(3, 5).map((g) => <div class="frame" data-reveal><Image src={photo(g)} alt="" widths={[600, 900]} sizes="(max-width: 900px) 46vw, 30vw" /></div>)}
+      </div>
+
+      <h2 class="h2s" data-split>Good to know</h2>
+      <ul class="facts">{h.facts.map((f) => <li>{f}</li>)}</ul>
+
+      {story && (
+        <a class="read" href={`${base}journal/${story.id}/`} data-cursor="Read">
+          <div class="frame"><Image src={photo(story.data.cover)} alt="" widths={[500]} sizes="220px" /></div>
+          <div><p class="eyebrow">From the journal</p><h3>{story.data.title}</h3><p class="muted">{story.data.dek}</p></div>
+        </a>
+      )}
+    </div>
+
+    <aside class="book" id="book" aria-label="Check availability">
+      <div class="book-in">
+        <p class="bp">From <strong>€{h.fromEUR}</strong> <span>a night, breakfast included</span></p>
+        <form onsubmit="event.preventDefault(); this.querySelector('.note').hidden=false">
+          <label><span>Arrive</span><input type="date" required /></label>
+          <label><span>Nights</span><select><option>2</option><option selected>3</option><option>5</option><option>7</option></select></label>
+          <label class="full"><span>Guests</span><select><option>1 adult</option><option selected>2 adults</option><option>2 adults, 1 child</option></select></label>
+          <button class="btn" type="submit" data-magnetic>Check availability <span class="arr">→</span></button>
+          <p class="note" hidden>Concept site: no booking is made.</p>
+        </form>
+        <ul class="reassure"><li>{h.facts[1]}</li><li>Best rate when you book with us</li><li>Reply from a real person within a day</li></ul>
+      </div>
+    </aside>
+  </section>
+
+  <section class="similar wrap">
+    <h2 data-split>You may also <em>like</em></h2>
+    <div class="g3">{similar.map((s) => <HotelCard hotel={s} />)}</div>
+  </section>
+
+  <div class="mbar"><p>From <strong>€{h.fromEUR}</strong> / night</p><a class="btn" href="#book">Check availability</a></div>
+</Base>
+
+<style>
+  .top { padding-top: 28px; }
+  .crumbs { font-size: 14px; color: var(--ink-3); margin-bottom: clamp(32px, 5vw, 64px); }
+  .crumbs a { text-decoration: none; } .crumbs a:hover { text-decoration: underline; }
+  .title-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: end; padding-bottom: 40px; }
+  .title-row h1 { font-size: clamp(52px, 8vw, 128px); margin-top: 10px; }
+  .gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .g-main { aspect-ratio: 4 / 3; }
+  .g-side { display: grid; gap: 16px; } .g-side .frame { height: 100%; min-height: 0; }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(40px, 6vw, 96px); padding-top: clamp(64px, 8vw, 112px); align-items: start; }
+  .h2s { font-size: clamp(34px, 3.6vw, 52px); margin: 0 0 28px; } .h2s em { font-style: italic; }
+  .why { list-style: none; counter-reset: w; padding: 0; margin: 0 0 72px; display: grid; gap: 22px; }
+  .why li { counter-increment: w; display: grid; grid-template-columns: 52px 1fr; font-size: 19px; line-height: 1.5; border-top: 1px solid var(--line); padding-top: 18px; }
+  .why li::before { content: counter(w); font-family: var(--f-display); font-style: italic; font-size: 32px; color: var(--terracotta); line-height: 1; }
+  .rooms { list-style: none; padding: 0; margin: 0 0 56px; border-top: 1px solid var(--ink); }
+  .rooms li { display: grid; grid-template-columns: 1fr auto auto; gap: 24px; align-items: center; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .rooms h3 { font-size: 26px; } .rooms p { margin: 4px 0 0; } .rp { font-size: 15px; white-space: nowrap; }
+  .rooms .btn { padding: 11px 18px; }
+  .strip { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 72px; } .strip .frame { aspect-ratio: 4 / 5; }
+  .facts { list-style: none; padding: 0; margin: 0 0 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
+  .facts li { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .read { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; text-decoration: none; background: var(--sand); padding: 16px; }
+  .read .frame { aspect-ratio: 4 / 3; } .read h3 { margin: 6px 0; }
+  .book { position: sticky; top: 100px; }
+  .book-in { background: var(--paper); padding: 28px; box-shadow: 0 40px 80px -40px rgba(20,32,51,.35); border-top: 3px solid var(--terracotta); }
+  .bp { font-size: 15px; margin: 0 0 20px; } .bp strong { font-family: var(--f-display); font-size: 44px; font-weight: 400; } .bp span { display: block; color: var(--ink-3); }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label { display: flex; flex-direction: column; border: 1px solid var(--line); padding: 8px 12px; } label.full { grid-column: 1 / -1; }
+  label span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--terracotta-dk); }
+  label input, label select { border: 0; background: transparent; padding: 2px 0; font-size: 15px; min-width: 0; }
+  form .btn { grid-column: 1 / -1; justify-content: center; margin-top: 6px; }
+  .note { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--terracotta-dk); }
+  .reassure { list-style: none; padding: 0; margin: 20px 0 0; font-size: 14px; display: grid; gap: 6px; color: var(--ink-2); }
+  .reassure li::before { content: "✓"; color: var(--olive); margin-right: 8px; font-weight: 700; }
+  .similar { padding: clamp(80px, 10vw, 140px) var(--gutter); } .similar h2 { margin-bottom: 44px; } .similar h2 em { font-style: italic; }
+  .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .mbar { display: none; }
+  @media (max-width: 900px) {
+    .title-row, .body { grid-template-columns: 1fr; }
+    .gallery { grid-template-columns: 1fr; } .g-side { grid-template-columns: 1fr 1fr; } .g-side .frame { aspect-ratio: 1; }
+    .book { position: static; }
+    .g3 { grid-template-columns: 1fr; gap: 48px; }
+    .facts { grid-template-columns: 1fr; }
+    .read { grid-template-columns: 1fr; }
+    .rooms li { grid-template-columns: 1fr auto; } .rooms .btn { display: none; }
+    .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--paper); box-shadow: 0 -1px 0 var(--line); padding: 10px var(--gutter); align-items: center; justify-content: space-between; gap: 12px; }
+    .mbar p { margin: 0; font-size: 15px; } .mbar .btn { padding: 12px 18px; }
+    :global(body) { padding-bottom: 68px; }
+  }
+</style>

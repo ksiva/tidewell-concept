@@ -1,0 +1,37 @@
+---
+import { regions } from "../data/hotels";
+const base = import.meta.env.BASE_URL;
+const { compact = false } = Astro.props;
+---
+<form class:list={["search", { compact }]} action={`${base}hotels/`} method="get" role="search">
+  <label><span>Where</span>
+    <select name="region"><option value="">Anywhere on the coast</option>{regions.map((r) => <option>{r}</option>)}</select>
+  </label>
+  <label><span>Arrive</span><input type="date" name="in" /></label>
+  <label><span>Nights</span>
+    <select name="n"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>7</option></select>
+  </label>
+  <label><span>Guests</span>
+    <select name="g"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+  </label>
+  <button class="btn" type="submit" data-magnetic>Find a room <span class="arr">→</span></button>
+</form>
+<style>
+  .search { display: grid; grid-template-columns: 1.6fr 1fr .7fr .7fr auto; background: var(--paper); color: var(--ink); max-width: 980px; box-shadow: 0 30px 60px -30px rgba(20,32,51,.45); }
+  label { display: flex; flex-direction: column; padding: 12px 18px; border-right: 1px solid var(--line); min-width: 0; }
+  label span { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--terracotta-dk); }
+  select, input { border: 0; background: transparent; padding: 4px 0 0; font-size: 16px; width: 100%; min-width: 0; cursor: pointer; }
+  .btn { border-radius: 0; justify-content: center; }
+  @media (max-width: 800px) {
+    .search { grid-template-columns: 1fr 1fr; }
+    label:first-child { grid-column: 1 / -1; }
+    label { border-bottom: 1px solid var(--line); }
+    .btn { grid-column: 1 / -1; padding: 18px; }
+  }
+  @media (max-width: 600px) {
+    .search { grid-template-columns: 1fr auto; }
+    label:first-child { grid-column: 1; border-bottom: 0; }
+    label:not(:first-child) { display: none; }
+    .btn { grid-column: 2; padding: 0 18px; }
+  }
+</style>

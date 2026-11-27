@@ -1,0 +1,43 @@
+---
+import { Image } from "astro:assets";
+import { photo } from "../data/photos";
+import type { Hotel } from "../data/hotels";
+const { hotel, size = "md", eager = false } = Astro.props as { hotel: Hotel; size?: "md" | "lg"; eager?: boolean };
+const base = import.meta.env.BASE_URL;
+const h = hotel;
+---
+<article class={`card ${size}`} data-tags={[h.region, ...h.moods].join("|")}>
+  <a href={`${base}hotels/${h.slug}/`} class="hit" data-cursor="View">
+    <div class="frame img" data-drift>
+      <div class="zoom"><Image src={photo(h.cover)} alt={`${h.name}, ${h.place}`} widths={[480, 800, 1200]} sizes="(max-width: 700px) 92vw, 33vw" loading={eager ? "eager" : "lazy"} /></div>
+      <span class="rooms">{h.rooms} rooms</span>
+      <div class="peek"><span>{h.moods.slice(0, 2).join(" · ")}</span><span>From €{h.fromEUR}</span></div>
+    </div>
+    <div class="meta">
+      <p class="where">{h.place}, {h.country}</p>
+      <h3>{h.name}</h3>
+      <p class="line">{h.line}</p>
+      <p class="price"><span>From <strong>€{h.fromEUR}</strong> a night</span><span class="go">See rooms <span class="arr">→</span></span></p>
+    </div>
+  </a>
+</article>
+<style>
+  .card { min-width: 0; }
+  .hit { text-decoration: none; display: block; color: inherit; }
+  .img { aspect-ratio: 4 / 5; }
+  .lg .img { aspect-ratio: 5 / 4; }
+  .zoom { position: absolute; inset: 0; transition: transform 1.2s var(--ease); }
+  .zoom :global(img) { position: absolute; inset: -12px; width: calc(100% + 24px); max-width: none; height: calc(100% + 24px); }
+  .hit:hover .zoom { transform: scale(1.06); }
+  .rooms { position: absolute; top: 14px; left: 14px; background: var(--paper); font-size: 12.5px; font-weight: 600; padding: 5px 10px; letter-spacing: .03em; }
+  .peek { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 12px; padding: 16px 18px; color: var(--paper);
+    background: linear-gradient(transparent, rgba(20,32,51,.75)); font-size: 14px; font-weight: 600; transform: translateY(100%); transition: transform .6s var(--ease); }
+  .hit:hover .peek, .hit:focus-visible .peek { transform: none; }
+  .meta { padding-top: 18px; }
+  .where { margin: 0 0 4px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--terracotta-dk); font-weight: 600; }
+  .line { margin: 8px 0 14px; color: var(--ink-2); font-size: 16px; }
+  .price { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 12px; margin: 0; font-size: 15px; }
+  .go { font-weight: 600; } .go .arr { display: inline-block; transition: transform .4s var(--ease); }
+  .hit:hover .go .arr { transform: translateX(5px); }
+  @media (hover: none) { .peek { transform: none; } }
+</style>

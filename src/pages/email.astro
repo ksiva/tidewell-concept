@@ -1,0 +1,62 @@
+---
+// Email campaign template: table layout, inline styles, 600 px, web-safe fallbacks.
+import { getImage } from "astro:assets";
+import { hotels } from "../data/hotels";
+import { photo } from "../data/photos";
+const base = import.meta.env.BASE_URL;
+const site = "https://ksiva.github.io" + base;
+const picks = hotels.filter((h) => h.region === "Cyclades");
+const imgs = await Promise.all(picks.map((h) => getImage({ src: photo(h.cover), width: 520, height: 390, fit: "cover", format: "jpg", quality: 78 })));
+const serif = "'Bodoni Moda', Didot, Georgia, 'Times New Roman', serif";
+const sans = "'Hanken Grotesk', Helvetica, Arial, sans-serif";
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width" /><meta name="robots" content="noindex" />
+  <title>The Tidewell letter · Email template (concept)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body style="margin:0;padding:0;background:#e6d9c3;">
+  <div style="display:none;max-height:0;overflow:hidden;">Stay four nights in the Cyclades, pay for three. Until 25 October.</div>
+  <p style="margin:0;padding:10px;text-align:center;font:12px/1.4 Helvetica,Arial,sans-serif;color:#3a4557;">Concept email template · fictional brand · <a href={base} style="color:#3a4557;">back to site</a></p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#e6d9c3;">
+    <tr><td align="center" style="padding:12px 12px 40px;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#faf7f1;">
+        <tr><td><img src={`${base}campaign/email-header.png`} width="600" alt="Tidewell · Late light, warm sea, one night free." style="display:block;width:100%;height:auto;border:0;" /></td></tr>
+        <tr><td style={`padding:40px 40px 8px;font-family:${sans};font-size:17px;line-height:1.6;color:#142033;`}>
+          <p style="margin:0 0 16px;">Hello,</p>
+          <p style="margin:0 0 16px;">September is the best month in the Cyclades: the sea is at its warmest, the ferries still run full timetables, and the villages belong to the people who live there again.</p>
+          <p style="margin:0;">Until 25 October, stay four nights at one of our three island hotels and the fourth is on us.</p>
+        </td></tr>
+        <tr><td align="left" style="padding:28px 40px 36px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:#b5532e;">
+            <a href={`${site}offers/late-season-cyclades/`} style={`display:inline-block;padding:16px 28px;font-family:${sans};font-size:15px;font-weight:700;color:#faf7f1;text-decoration:none;`}>See the offer →</a>
+          </td></tr></table>
+        </td></tr>
+        {picks.map((h, i) => (
+          <tr><td style="padding:0 40px 28px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #d9cdb8;">
+              <tr>
+                <td width="46%" valign="top" style="padding-top:20px;"><a href={`${site}hotels/${h.slug}/`}><img src={imgs[i].src} width="240" alt={`${h.name}, ${h.place}`} style="display:block;width:100%;height:auto;border:0;" /></a></td>
+                <td width="4%"></td>
+                <td width="50%" valign="top" style={`padding-top:20px;font-family:${sans};color:#142033;`}>
+                  <p style="margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#8f3d1f;">{h.place}</p>
+                  <p style={`margin:0 0 8px;font-family:${serif};font-size:26px;line-height:1.1;`}>{h.name}</p>
+                  <p style="margin:0 0 12px;font-size:15px;line-height:1.5;color:#3a4557;">{h.line}</p>
+                  <p style="margin:0;font-size:14px;"><strong>4 nights from €{Math.round(h.fromEUR * 3)}</strong> · <a href={`${site}hotels/${h.slug}/`} style="color:#8f3d1f;font-weight:700;">See rooms</a></p>
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+        ))}
+        <tr><td style={`background:#142033;padding:32px 40px;font-family:${sans};font-size:13px;line-height:1.6;color:#c9cdd4;`}>
+          <p style={`margin:0 0 10px;font-family:${serif};font-style:italic;font-size:22px;color:#f3eee4;`}>Tidewell</p>
+          <p style="margin:0;">Small hotels by the Mediterranean, chosen by hand. You receive this because you subscribed to the Tidewell letter. <a href="#" style="color:#f3eee4;">Unsubscribe</a> · <a href="#" style="color:#f3eee4;">View in browser</a></p>
+          <p style="margin:12px 0 0;color:#8f97a3;">Concept / spec work. Fictional brand.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,61 @@
+---
+import Logo from "./Logo.astro";
+const { tone = "light" } = Astro.props; // "over" = transparent over a dark hero
+const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+const nav = [
+  { href: `${base}hotels/`, label: "Hotels" },
+  { href: `${base}journal/cyclades-by-ferry/`, label: "Journal", match: `${base}journal/` },
+  { href: `${base}offers/late-season-cyclades/`, label: "Offers", match: `${base}offers/` },
+  { href: `${base}brand/`, label: "Brand book" },
+];
+---
+<header class={`site-header tone-${tone}`}>
+  <div class="wrap bar">
+    <a href={base} class="home" aria-label="Tidewell home"><Logo /></a>
+    <nav aria-label="Main">
+      <ul>
+        {nav.map((n) => (
+          <li><a href={n.href} aria-current={path.startsWith(n.match ?? n.href) ? "page" : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a class="btn cta" href={`${base}hotels/`} data-magnetic>Check availability</a>
+    <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="mnav"><span></span><span></span><span class="sr-only">Menu</span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <ul>{nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>
+    <a class="btn" href={`${base}hotels/`}>Check availability</a>
+  </div>
+</header>
+<style>
+  .site-header { position: sticky; top: 0; z-index: 50; transition: background .4s, color .4s, box-shadow .4s; }
+  .tone-over { position: fixed; left: 0; right: 0; top: 31px; color: var(--paper); }
+  .site-header.is-solid { background: rgba(243, 238, 228, .92); backdrop-filter: blur(10px); color: var(--ink); box-shadow: 0 1px 0 var(--line); top: 0; }
+  .tone-light { background: var(--limewash); }
+  .bar { display: flex; align-items: center; gap: 32px; height: 78px; }
+  .home { text-decoration: none; margin-right: auto; }
+  nav ul { display: flex; gap: 30px; list-style: none; margin: 0; padding: 0; }
+  nav a { text-decoration: none; font-size: 15px; font-weight: 500; position: relative; padding: 6px 0; }
+  nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .5s var(--ease); }
+  nav a:hover::after, nav a[aria-current="page"]::after { transform: scaleX(1); transform-origin: left; }
+  .cta { padding: 13px 20px; font-size: 14px; }
+  .menu-btn { display: none; background: none; border: 0; width: 44px; height: 44px; position: relative; cursor: pointer; }
+  .menu-btn span:not(.sr-only) { position: absolute; left: 10px; right: 10px; height: 1.5px; background: currentColor; transition: transform .4s var(--ease); }
+  .menu-btn span:nth-child(1) { top: 17px; } .menu-btn span:nth-child(2) { top: 26px; }
+  .mnav { display: none; }
+  @media (max-width: 900px) {
+    nav, .cta { display: none; }
+    .menu-btn { display: block; }
+    .bar { height: 64px; }
+    .mnav { display: flex; flex-direction: column; gap: 28px; position: fixed; inset: 0; top: 0; padding: 110px var(--gutter) 40px; background: var(--limewash); color: var(--ink);
+      transform: translateY(-100%); transition: transform .7s var(--ease); z-index: -1; }
+    .mnav ul { list-style: none; padding: 0; margin: 0; }
+    .mnav a:not(.btn) { font-family: var(--f-display); font-size: 44px; text-decoration: none; line-height: 1.25; }
+    .mnav .btn { align-self: flex-start; }
+    :global(body.menu-open) .mnav { transform: none; }
+    :global(body.menu-open) .site-header { color: var(--ink); }
+    :global(body.menu-open) .menu-btn span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+    :global(body.menu-open) .menu-btn span:nth-child(2) { transform: translateY(-4.5px) rotate(-45deg); }
+  }
+</style>

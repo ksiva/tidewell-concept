@@ -1,0 +1,53 @@
+---
+import Base from "../../layouts/Base.astro";
+import HotelCard from "../../components/HotelCard.astro";
+import SearchBar from "../../components/SearchBar.astro";
+import { hotels, regions } from "../../data/hotels";
+const filters = ["Sea view", "Food", "Village", "Quiet", "Pool", "Romance"];
+---
+<Base title="Hotels" description="Every Tidewell hotel, by region and mood.">
+  <section class="head wrap">
+    <p class="eyebrow" data-fade data-now>The collection</p>
+    <h1 data-split data-now>Every hotel, <em>visited first.</em></h1>
+    <div class="sb" data-fade data-now><SearchBar /></div>
+  </section>
+
+  <section class="list wrap">
+    <div class="filters" role="toolbar" aria-label="Filter hotels">
+      <button data-filter="all" aria-pressed="true">All</button>
+      {regions.map((r) => <button data-filter={r} aria-pressed="false">{r}</button>)}
+      <span class="sep" aria-hidden="true"></span>
+      {filters.map((m) => <button data-filter={m} aria-pressed="false">{m}</button>)}
+      <span class="count" data-count aria-live="polite">{hotels.length} hotels</span>
+    </div>
+    <div class="grid" data-filter-grid>
+      {hotels.map((h, i) => <HotelCard hotel={h} eager={i < 3} />)}
+    </div>
+  </section>
+</Base>
+
+<script>
+  const p = new URLSearchParams(location.search).get("region");
+  if (p) document.querySelector<HTMLButtonElement>(`[data-filter="${CSS.escape(p)}"]`)?.click();
+</script>
+
+<style>
+  .head { padding-top: clamp(48px, 7vw, 104px); padding-bottom: 48px; }
+  .head h1 { font-size: clamp(48px, 7vw, 112px); margin: 12px 0 36px; }
+  .head h1 em { font-style: italic; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 22px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); margin-bottom: 44px; position: sticky; top: 78px; background: var(--limewash); z-index: 5; }
+  .filters button { background: transparent; border: 1px solid var(--line); padding: 8px 14px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background .3s, color .3s, border-color .3s; }
+  .filters button:hover { border-color: var(--ink); }
+  .filters button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .sep { width: 1px; height: 22px; background: var(--line); margin: 0 6px; }
+  .count { margin-left: auto; font-size: 14px; color: var(--ink-3); }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 56px 32px; padding-bottom: clamp(80px, 10vw, 140px); }
+  .grid > :global(.card:nth-child(4n+1)) { grid-column: span 2; }
+  .grid > :global(.card:nth-child(4n+1) .img) { aspect-ratio: 16 / 10; }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr 1fr; } .grid > :global(.card:nth-child(4n+1)) { grid-column: span 2; }
+    .filters { top: 64px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .filters button { flex: none; } .count { display: none; }
+  }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .grid > :global(.card:nth-child(4n+1)) { grid-column: auto; } .grid > :global(.card .img) { aspect-ratio: 4 / 5 !important; } }
+</style>

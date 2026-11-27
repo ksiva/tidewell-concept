@@ -1,0 +1,141 @@
+---
+import "@fontsource-variable/bodoni-moda";
+import "@fontsource-variable/hanken-grotesk";
+import "../../styles/global.css";
+import { getImage } from "astro:assets";
+import Logo from "../../components/Logo.astro";
+import { ads, type Ad } from "../../data/ads";
+import { photo } from "../../data/photos";
+
+export function getStaticPaths() { return ads.map((a) => ({ params: { id: a.id }, props: { a } })); }
+const { a } = Astro.props as { a: Ad };
+const pick: Record<string, number> = { "feed-offer": 26, "feed-hotel": 24, "story-offer": 19, mpu: 26, leader: 0, sky: 26, half: 26, "email-header": 43 };
+const img = await getImage({ src: photo(pick[a.id]), width: Math.min(2000, Math.max(a.w, a.h) * 2), format: "jpg", quality: 82 });
+const animated = a.kind === "display" && !Astro.url.searchParams?.has("still");
+---
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8" /><meta name="robots" content="noindex" /><title>{a.label} · Tidewell</title></head>
+<body class="adpage">
+  <div class={`ad ${a.id} k-${a.kind} ${animated ? "anim" : ""}`} style={`width:${a.w}px;height:${a.h}px`}>
+    <div class="bg" style={`background-image:url(${img.src})`}></div>
+
+    {a.id === "feed-offer" && (<>
+      <div class="shade"></div>
+      <div class="top"><Logo size={64} /></div>
+      <div class="bottom">
+        <p class="tag">Cyclades · 15 Sept to 25 Oct</p>
+        <h1>The fourth night is <em>on the island.</em></h1>
+        <div class="row"><span class="cta">Book direct →</span><span class="small">Stay 4 nights, pay for 3</span></div>
+      </div>
+    </>)}
+
+    {a.id === "feed-hotel" && (<>
+      <div class="card">
+        <Logo size={46} />
+        <p class="tag dk">New to the collection</p>
+        <h1>Lithos House, <em>Milos</em></h1>
+        <p class="sub">Nine rooms cut into the cliff above a fishing cove.</p>
+        <div class="row"><span class="cta">See rooms →</span><span class="small dk">From €240 a night</span></div>
+      </div>
+    </>)}
+
+    {a.id === "story-offer" && (<>
+      <div class="panel">
+        <Logo size={58} />
+        <p class="tag dk">Late season in the Cyclades</p>
+        <h1>Four nights. <em>Pay for three.</em></h1>
+        <p class="sub">Three small hotels, warm sea, quiet villages. 15 September to 25 October.</p>
+        <span class="cta">Choose your hotel</span>
+        <p class="swipe">Swipe up ↑</p>
+      </div>
+    </>)}
+
+    {a.id === "mpu" && (<>
+      <div class="shade"></div>
+      <div class="d-logo"><Logo size={22} /></div>
+      <div class="d-copy"><h1 class="l1">The fourth night</h1><h1 class="l2"><em>is on the island.</em></h1><span class="cta">Book direct →</span></div>
+    </>)}
+
+    {a.id === "leader" && (<>
+      <div class="lb-panel"><Logo size={26} /></div>
+      <div class="lb-copy"><h1 class="l1">Small hotels by the <em>Mediterranean</em></h1><p class="l2">Cyclades · 4 nights for 3 until 25 Oct</p></div>
+      <span class="cta">Book direct →</span>
+    </>)}
+
+    {(a.id === "sky" || a.id === "half") && (<>
+      <div class="shade"></div>
+      <div class="d-logo"><Logo size={a.id === "sky" ? 22 : 28} withWord={a.id !== "sky"} /></div>
+      <div class="d-copy"><p class="tag l1">Cyclades</p><h1 class="l2">Four nights, <em>pay for three.</em></h1><p class="l3 small">Until 25 October</p><span class="cta">Book direct →</span></div>
+    </>)}
+
+    {a.id === "email-header" && (<>
+      <div class="shade"></div>
+      <div class="e-top"><Logo size={34} /></div>
+      <div class="e-copy"><p class="tag">The Tidewell letter · October</p><h1>Late light, warm sea, <em>one night free.</em></h1></div>
+    </>)}
+  </div>
+</body></html>
+
+<style is:global>
+  body.adpage { margin: 0; background: #ddd; display: grid; place-items: start; overflow: hidden; }
+  .ad { position: relative; overflow: hidden; color: var(--paper); font-family: var(--f-sans); }
+  .ad .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .ad .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,32,51,.4) 0%, rgba(20,32,51,0) 25%, rgba(20,32,51,.3) 50%, rgba(20,32,51,.9) 100%); }
+  .email-header .shade { background: linear-gradient(90deg, rgba(20,32,51,.78) 0%, rgba(20,32,51,.35) 60%, rgba(20,32,51,.1) 100%); }
+  .ad h1 { font-family: var(--f-display); font-weight: 400; margin: 0; line-height: 1; letter-spacing: -.01em; }
+  .ad em { font-style: italic; }
+  .ad .tag { text-transform: uppercase; letter-spacing: .16em; font-weight: 700; margin: 0; }
+  .ad .cta { background: var(--terracotta); color: var(--paper); font-weight: 700; display: inline-block; }
+  .ad .dk { color: var(--terracotta-dk); }
+  .ad .row { display: flex; align-items: center; gap: 28px; }
+
+  /* Feed offer */
+  .feed-offer .top { position: absolute; top: 64px; left: 64px; }
+  .feed-offer .top .word, .feed-hotel .word, .story-offer .word { font-size: 52px; }
+  .feed-offer .bottom { position: absolute; left: 64px; right: 64px; bottom: 72px; }
+  .feed-offer .tag { font-size: 24px; margin-bottom: 22px; }
+  .feed-offer h1 { font-size: 112px; margin-bottom: 40px; }
+  .feed-offer .cta { font-size: 30px; padding: 24px 34px; } .feed-offer .small { font-size: 28px; }
+
+  /* Feed hotel */
+  .feed-hotel .bg { bottom: 470px; }
+  .feed-hotel .card { position: absolute; left: 0; right: 0; bottom: 0; height: 520px; background: var(--limewash); color: var(--ink); padding: 56px 64px; }
+  .feed-hotel .tag { font-size: 22px; margin: 36px 0 14px; }
+  .feed-hotel h1 { font-size: 96px; } .feed-hotel .sub { font-size: 32px; color: var(--ink-2); margin: 16px 0 34px; }
+  .feed-hotel .cta { font-size: 28px; padding: 22px 32px; } .feed-hotel .small { font-size: 28px; font-weight: 600; }
+  .feed-hotel .logo { color: var(--ink); }
+
+  /* Story */
+  .story-offer .bg { bottom: 760px; }
+  .story-offer .panel { position: absolute; left: 0; right: 0; bottom: 0; height: 800px; background: var(--limewash); color: var(--ink); padding: 72px 80px; }
+  .story-offer .tag { font-size: 26px; margin: 48px 0 20px; } .story-offer h1 { font-size: 124px; }
+  .story-offer .sub { font-size: 36px; color: var(--ink-2); margin: 28px 0 48px; line-height: 1.35; }
+  .story-offer .cta { font-size: 34px; padding: 28px 40px; } .story-offer .swipe { position: absolute; bottom: 48px; left: 0; right: 0; text-align: center; font-size: 26px; color: var(--ink-3); margin: 0; }
+
+  /* Display */
+  .k-display .cta { font-size: 12px; padding: 8px 12px; letter-spacing: .02em; }
+  .k-display .d-logo { position: absolute; top: 12px; left: 12px; } .k-display .word { font-size: 18px; }
+  .mpu .d-copy { position: absolute; left: 14px; right: 14px; bottom: 14px; }
+  .mpu h1 { font-size: 22px; line-height: 1.05; } .mpu .cta { margin-top: 12px; }
+  .leader { display: flex; align-items: center; background: var(--limewash); color: var(--ink); }
+  .leader .bg { left: auto; width: 210px; }
+  .leader .lb-panel { padding: 0 18px; border-right: 1px solid var(--line); height: 100%; display: grid; place-items: center; }
+  .leader .lb-copy { padding: 0 18px; flex: 1; } .leader h1 { font-size: 25px; } .leader .l2 { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--terracotta-dk); letter-spacing: .04em; }
+  .leader .cta { position: relative; margin-right: 226px; white-space: nowrap; }
+  .sky .bg { background-position: 18% center; }
+  .sky .d-copy, .half .d-copy { position: absolute; left: 14px; right: 14px; bottom: 18px; }
+  .sky .tag, .half .tag { font-size: 11px; margin-bottom: 10px; } .sky h1 { font-size: 30px; } .half h1 { font-size: 44px; }
+  .sky .l3, .half .l3 { font-family: var(--f-sans); font-size: 12px; letter-spacing: .02em; margin: 10px 0 14px; opacity: .95; }
+
+  /* Email header */
+  .email-header .e-top { position: absolute; top: 24px; left: 28px; } .email-header .word { font-size: 26px; }
+  .email-header .e-copy { position: absolute; left: 28px; right: 28px; bottom: 26px; }
+  .email-header .tag { font-size: 11px; margin-bottom: 10px; } .email-header h1 { font-size: 40px; max-width: 13ch; }
+
+  /* HTML5 display animation: 12 s loop, ends on the full message */
+  .anim .bg { animation: kb 12s ease-out infinite alternate; }
+  .anim .l1, .anim .l2, .anim .l3, .anim .cta { animation: rise 1s cubic-bezier(.16,1,.3,1) both; }
+  .anim .l2 { animation-delay: .35s; } .anim .l3 { animation-delay: .6s; } .anim .cta { animation-delay: .9s; }
+  @keyframes kb { from { transform: scale(1.12); } to { transform: scale(1); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+</style>

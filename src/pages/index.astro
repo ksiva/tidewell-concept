@@ -1,0 +1,186 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import HotelCard from "../components/HotelCard.astro";
+import SearchBar from "../components/SearchBar.astro";
+import { hotels, bySlug } from "../data/hotels";
+import { photo } from "../data/photos";
+
+const base = import.meta.env.BASE_URL;
+const feature = bySlug("kastro-seven");
+const stories = (await getCollection("journal")).sort((a, b) => b.data.date.localeCompare(a.data.date));
+const moodRows = [
+  { label: "Sea view", img: 28, n: hotels.filter((h) => h.moods.includes("Sea view")).length },
+  { label: "Food first", img: 74, n: hotels.filter((h) => h.moods.includes("Food")).length },
+  { label: "Village life", img: 18, n: hotels.filter((h) => h.moods.includes("Village")).length },
+  { label: "Pool among olives", img: 42, n: hotels.filter((h) => h.moods.includes("Pool")).length },
+  { label: "Just the two of you", img: 77, n: hotels.filter((h) => h.moods.includes("Romance")).length },
+];
+---
+<Base tone="over">
+  <section class="hero">
+    <div class="hero-img"><div data-parallax="16" class="px"><Image src={photo(19)} alt="Terrace above the Aegean with agave in the foreground" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" fetchpriority="high" /></div></div>
+    <div class="wrap hero-in">
+      <p class="eyebrow hero-eb" data-fade data-now>Greece · Italy · Croatia · Mallorca</p>
+      <h1 data-split data-now>Small hotels by the <em>Mediterranean</em>, chosen by hand.</h1>
+      <div class="hero-sb" data-fade data-now><SearchBar /></div>
+    </div>
+  </section>
+
+  <section class="intro wrap">
+    <p class="big" data-fade>We stay in every hotel before it joins the collection. Most have fewer than twelve rooms, an owner who still makes breakfast, and a view worth getting up early for.</p>
+    <dl class="facts" data-fade>
+      <div><dt>8</dt><dd>hotels, each visited</dd></div>
+      <div><dt>4</dt><dd>coasts, from Milos to Mallorca</dd></div>
+      <div><dt>15</dt><dd>rooms at the largest</dd></div>
+    </dl>
+  </section>
+
+  <section class="feature">
+    <div class="wrap feat-grid">
+      <a class="feat-img frame" href={`${base}hotels/${feature.slug}/`} data-reveal data-cursor="Open">
+        <Image src={photo(feature.cover)} alt={`${feature.name}, ${feature.place}`} widths={[700, 1100, 1600]} sizes="(max-width: 900px) 92vw, 58vw" />
+      </a>
+      <div class="feat-copy">
+        <p class="eyebrow" data-fade>Hotel of the season</p>
+        <h2 data-split>{feature.name}, <em>{feature.place}</em></h2>
+        <p class="lede" data-fade>{feature.line} {feature.why[0]}</p>
+        <ul class="ticks" data-fade>{feature.facts.slice(0, 3).map((f) => <li>{f}</li>)}</ul>
+        <div class="row" data-fade>
+          <a class="btn" href={`${base}hotels/${feature.slug}/`} data-magnetic>See rooms from €{feature.fromEUR} <span class="arr">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="collection wrap">
+    <div class="sec-head">
+      <h2 data-split>The <em>collection</em></h2>
+      <a class="link" href={`${base}hotels/`}>All {hotels.length} hotels</a>
+    </div>
+    <div class="grid3">{hotels.slice(0, 6).map((h, i) => <div data-fade><HotelCard hotel={h} eager={i < 3} /></div>)}</div>
+  </section>
+
+  <div class="marquee" data-marquee aria-hidden="true">
+    <div class="track">{hotels.map((h) => <span>{h.place}<i>✦</i></span>)}</div>
+  </div>
+
+  <section class="moods wrap" data-moods>
+    <div class="sec-head"><h2 data-split>Travel by <em>mood</em></h2><p class="muted">Hover a mood to look inside.</p></div>
+    <ul class="mood-list">
+      {moodRows.map((m, i) => (
+        <li>
+          <a href={`${base}hotels/`} data-img={i}>
+            <span class="mi">✦</span><span class="ml">{m.label}</span><span class="mn">{m.n} hotels →</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="mood-float" aria-hidden="true">
+      {moodRows.map((m) => <Image src={photo(m.img)} alt="" widths={[500]} sizes="320px" />)}
+    </div>
+  </section>
+
+  <section class="journal wrap">
+    <div class="sec-head"><h2 data-split>From the <em>journal</em></h2><a class="link" href={`${base}journal/${stories[0].id}/`}>Read the latest</a></div>
+    <div class="grid3">
+      {stories.map((s) => (
+        <a class="story" href={`${base}journal/${s.id}/`} data-fade data-cursor="Read">
+          <div class="frame s-img"><div class="zoom"><Image src={photo(s.data.cover)} alt="" widths={[600, 900]} sizes="(max-width: 700px) 92vw, 33vw" /></div></div>
+          <p class="eyebrow">{s.data.kicker}</p>
+          <h3>{s.data.title}</h3>
+          <p class="muted">{s.data.dek}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { gsap } from "gsap";
+  const sec = document.querySelector<HTMLElement>("[data-moods]");
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (sec && fine) {
+    const float = sec.querySelector<HTMLElement>(".mood-float")!;
+    const imgs = float.querySelectorAll("img");
+    const xTo = gsap.quickTo(float, "x", { duration: 0.6, ease: "power3" });
+    const yTo = gsap.quickTo(float, "y", { duration: 0.6, ease: "power3" });
+    sec.addEventListener("pointermove", (e) => { const r = sec.getBoundingClientRect(); xTo(e.clientX - r.left); yTo(e.clientY - r.top); });
+    sec.querySelectorAll<HTMLElement>("[data-img]").forEach((a) => {
+      a.addEventListener("pointerenter", () => {
+        imgs.forEach((im, i) => im.classList.toggle("on", String(i) === a.dataset.img));
+        float.classList.add("show");
+      });
+      a.addEventListener("pointerleave", () => float.classList.remove("show"));
+    });
+  }
+</script>
+
+<style>
+  .hero { position: relative; height: 100svh; min-height: 640px; color: var(--paper); display: flex; align-items: flex-end; overflow: hidden; margin-top: -1px; }
+  .hero-img { position: absolute; inset: 0; overflow: hidden; }
+  .hero-img .px { position: absolute; inset: -8% 0; }
+  .hero-img :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 700px) {
+    .hero-img :global(img) { object-position: 22% center; }
+    .hero::after { background: linear-gradient(180deg, rgba(20,32,51,.5) 0%, rgba(20,32,51,.15) 30%, rgba(20,32,51,.45) 55%, rgba(20,32,51,.85) 100%); }
+  }
+  .hero::after { content: ""; position: absolute; inset: 0; background:
+    linear-gradient(90deg, rgba(20,32,51,.55) 0%, rgba(20,32,51,.25) 45%, rgba(20,32,51,0) 70%),
+    linear-gradient(180deg, rgba(20,32,51,.45) 0%, rgba(20,32,51,0) 25%, rgba(20,32,51,.2) 50%, rgba(20,32,51,.75) 100%); }
+  .hero-in { position: relative; z-index: 2; padding-bottom: clamp(28px, 5vh, 64px); }
+  .hero-eb { color: var(--paper); opacity: .9; }
+  .hero h1 { max-width: 13ch; margin: 14px 0 clamp(24px, 4vh, 44px); }
+  .hero h1 em { font-style: italic; }
+
+  .intro { display: grid; grid-template-columns: 1.6fr 1fr; gap: 64px; padding-top: clamp(80px, 12vw, 160px); padding-bottom: clamp(64px, 8vw, 120px); align-items: end; }
+  .big { font-family: var(--f-display); font-size: clamp(26px, 2.8vw, 42px); line-height: 1.22; margin: 0; }
+  .facts { margin: 0; display: grid; gap: 18px; }
+  .facts div { display: flex; align-items: baseline; gap: 16px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .facts dt { font-family: var(--f-display); font-size: 48px; line-height: 1; min-width: 2ch; color: var(--terracotta); }
+  .facts dd { margin: 0; color: var(--ink-2); }
+
+  .feature { background: var(--sand); padding: clamp(64px, 8vw, 120px) 0; }
+  .feat-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: clamp(32px, 5vw, 88px); align-items: center; }
+  .feat-img { aspect-ratio: 4 / 3; display: block; }
+  .feat-copy h2 em { font-style: italic; }
+  .feat-copy .lede { margin: 22px 0; }
+  .ticks { list-style: none; padding: 0; margin: 0 0 30px; display: grid; gap: 8px; }
+  .ticks li::before { content: "—"; color: var(--terracotta); margin-right: 10px; }
+
+  .collection, .journal { padding-top: clamp(80px, 10vw, 140px); }
+  .sec-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 44px; flex-wrap: wrap; }
+  .sec-head h2 em { font-style: italic; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 56px 32px; }
+
+  .marquee { overflow: hidden; margin-top: clamp(80px, 10vw, 140px); border-block: 1px solid var(--line); padding: 26px 0; }
+  .track { display: flex; width: max-content; }
+  .track span { font-family: var(--f-display); font-style: italic; font-size: clamp(40px, 6vw, 92px); line-height: 1.1; padding-right: 48px; white-space: nowrap; }
+  .track i { font-style: normal; font-size: .4em; color: var(--terracotta); vertical-align: middle; margin-left: 48px; }
+
+  .moods { position: relative; padding-top: clamp(80px, 10vw, 140px); }
+  .mood-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ink); }
+  .mood-list a { display: grid; grid-template-columns: 60px 1fr auto; align-items: baseline; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--line); text-decoration: none; position: relative; }
+  .ml { font-family: var(--f-display); font-size: clamp(32px, 4.6vw, 68px); line-height: 1.05; transition: transform .6s var(--ease), color .4s; }
+  .mood-list a:hover .ml { transform: translateX(24px); color: var(--terracotta); font-style: italic; }
+  .mi { color: var(--terracotta); font-size: 14px; } .mn { font-weight: 600; font-size: 15px; }
+  .mood-float { position: absolute; left: 0; top: 0; width: 280px; height: 350px; margin: -175px 0 0 48px; pointer-events: none; z-index: 3; opacity: 0; transform-origin: center; transition: opacity .3s; overflow: hidden; }
+  .mood-float.show { opacity: 1; }
+  .mood-float :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.12); transition: opacity .4s, transform .8s var(--ease); }
+  .mood-float :global(img.on) { opacity: 1; transform: scale(1); }
+
+  .story { text-decoration: none; display: block; }
+  .s-img { aspect-ratio: 3 / 2; margin-bottom: 18px; }
+  .story .zoom { position: absolute; inset: 0; transition: transform 1.2s var(--ease); }
+  .story:hover .zoom { transform: scale(1.06); }
+  .story h3 { margin: 8px 0; }
+  .journal { padding-bottom: clamp(80px, 10vw, 140px); }
+
+  @media (max-width: 900px) {
+    .intro, .feat-grid { grid-template-columns: 1fr; gap: 36px; }
+    .grid3 { grid-template-columns: 1fr; gap: 48px; }
+    .mood-list a { grid-template-columns: 36px 1fr; } .mn { grid-column: 2; }
+  }
+  @media (min-width: 701px) and (max-width: 900px) { .grid3 { grid-template-columns: 1fr 1fr; } }
+</style>

@@ -1,0 +1,165 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import Logo from "../components/Logo.astro";
+import HotelCard from "../components/HotelCard.astro";
+import { hotels } from "../data/hotels";
+import { ads } from "../data/ads";
+import { photo } from "../data/photos";
+const base = import.meta.env.BASE_URL;
+const colours = [
+  { name: "Limewash", hex: "#F3EEE4", role: "Page ground. The white of island walls, never pure white.", ink: "#142033" },
+  { name: "Deep water", hex: "#142033", role: "Text, footer, overlays. Replaces black everywhere.", ink: "#F3EEE4" },
+  { name: "Terracotta", hex: "#B5532E", role: "One action per view: buttons, prices, the single accent.", ink: "#FAF7F1" },
+  { name: "Sand", hex: "#E6D9C3", role: "Feature bands and quiet panels.", ink: "#142033" },
+  { name: "Sea", hex: "#2D6E8E", role: "Editorial calls to action and maps.", ink: "#FAF7F1" },
+  { name: "Olive", hex: "#5E6B3A", role: "Confirmation and reassurance ticks.", ink: "#FAF7F1" },
+];
+const templates = [
+  { href: base, label: "Home", note: "Search first, then one featured hotel, collection, moods, journal." },
+  { href: `${base}hotels/`, label: "Listing", note: "Filterable grid driven by the hotel collection." },
+  { href: `${base}hotels/lithos-house/`, label: "Hotel page", note: "Gallery, reasons, rooms, sticky booking panel." },
+  { href: `${base}journal/cyclades-by-ferry/`, label: "Editorial", note: "Long read with an in-story booking rail." },
+  { href: `${base}offers/late-season-cyclades/`, label: "Landing page", note: "Paid-traffic page: one offer, one action, no leaks." },
+  { href: `${base}email/`, label: "Email", note: "600 px table template for the newsletter." },
+];
+const display = ads.filter((a) => a.kind === "display");
+const stills = ads.filter((a) => a.kind !== "display");
+---
+<Base title="Brand book" description="The Tidewell identity: logo, type, colour, photography, voice, templates and campaign assets.">
+  <section class="b-hero wrap">
+    <p class="eyebrow" data-fade data-now>Brand book · concept</p>
+    <h1 data-split data-now>A sunlit, <em>unhurried</em> system.</h1>
+    <p class="lede" data-fade data-now>Tidewell curates small hotels on the Mediterranean coast. The identity borrows from the places themselves: limewashed walls, deep water, terracotta roofs, and the slow italic of a handwritten guestbook.</p>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Logo</h2>
+    <div class="logos">
+      <div class="lg l1"><Logo size={64} /></div>
+      <div class="lg l2"><Logo size={64} /></div>
+      <div class="lg l3"><Logo size={64} /></div>
+      <div class="lg l4"><Logo size={120} withWord={false} /></div>
+    </div>
+    <p class="note">The mark is a sun meeting the horizon above two lines of tide. Wordmark set in Bodoni Moda italic. Clear space equals the height of the sun on all sides; minimum size 24 px for the mark, 90 px wide for the lock-up.</p>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Typography</h2>
+    <div class="type">
+      <div class="spec s1"><p class="aa">Aa</p><p class="fname">Bodoni Moda</p><p class="muted">Display and headlines. Italic for places and the single emphasis in a line. SIL OFL.</p><p class="sample">Folegandros, <em>at golden hour</em></p></div>
+      <div class="spec s2"><p class="aa">Aa</p><p class="fname">Hanken Grotesk</p><p class="muted">Text, interface, prices and labels. Tabular figures for rates. SIL OFL.</p><p class="sample2">From €220 a night · 7 rooms · Breakfast included</p></div>
+    </div>
+    <div class="scale">
+      <p class="t1">Display 132</p><p class="t2">Heading 76</p><p class="t3">Title 32</p><p class="t4">Body 17 / 1.6 — Every room opens onto its own terrace; you hear the water, not the road.</p><p class="t5">LABEL 13 / TRACKED 0.16 EM</p>
+    </div>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Colour</h2>
+    <div class="sw">
+      {colours.map((c) => (
+        <div class="swatch" style={`background:${c.hex};color:${c.ink}`}><p class="cn">{c.name}</p><p class="hx">{c.hex}</p><p class="cr">{c.role}</p></div>
+      ))}
+    </div>
+    <p class="note">Ratio on a page: about 70 limewash, 20 deep water, 10 everything else. Terracotta stays scarce so the booking action is always the warmest thing on screen. Text pairs are checked to WCAG AA (body ≥ 4.5:1).</p>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Photography</h2>
+    <div class="photos">
+      {[24, 74, 18, 66].map((n) => <div class="frame"><Image src={photo(n)} alt="" widths={[500, 800]} sizes="(max-width: 800px) 46vw, 24vw" /></div>)}
+    </div>
+    <ul class="rules">
+      <li><strong>Real light.</strong> High sun or the hour before sunset; no heavy grades, no filters.</li>
+      <li><strong>The place, then the room.</strong> Lead with the view or the village; rooms come second.</li>
+      <li><strong>People small, never posed.</strong> A figure on a terrace gives scale; no models looking at camera.</li>
+      <li><strong>Texture up close.</strong> Linen, stone, tiles, breakfast: one detail per hotel story.</li>
+    </ul>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Voice</h2>
+    <div class="voice">
+      <div><p class="v-say">We say</p><p class="v">"Nine rooms cut into the cliff above a fishing cove."</p></div>
+      <div><p class="v-not">Not</p><p class="v no">"An exclusive luxury boutique experience with breathtaking views."</p></div>
+      <div><p class="v-say">We say</p><p class="v">"Breakfast is whatever the owner's mother baked that morning."</p></div>
+      <div><p class="v-not">Not</p><p class="v no">"Indulge in a gourmet breakfast curated just for you."</p></div>
+    </div>
+    <p class="note">Specific, warm, short. Name the thing; let the photograph do the adjectives.</p>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Components</h2>
+    <div class="comp">
+      <div class="btns"><a class="btn" href="#">Check availability <span class="arr">→</span></a><a class="btn ghost" href="#">Select</a><a class="link" href="#">All 8 hotels</a></div>
+      <div class="comp-card"><HotelCard hotel={hotels[1]} /></div>
+    </div>
+  </section>
+
+  <section class="b-sec wrap">
+    <h2 class="sh">Templates</h2>
+    <ul class="tpl">{templates.map((t) => <li><a href={t.href}><span class="tl">{t.label}</span><span class="tn">{t.note}</span><span class="arr">→</span></a></li>)}</ul>
+    <p class="note">Hotels and stories are content collections, so each template scales to hundreds of entries without design changes. The same structure maps onto Webflow CMS collections.</p>
+  </section>
+
+  <section class="b-sec wrap" id="campaign">
+    <h2 class="sh">Campaign</h2>
+    <p class="lede">One message, "four nights for three", carried from paid social to display to email to the landing page it points at.</p>
+    <h3 class="sub">Paid social and email</h3>
+    <div class="stills">
+      {stills.map((a) => <figure><img src={`${base}campaign/${a.id}.png`} alt={a.label} loading="lazy" width={a.w} height={a.h} /><figcaption>{a.label}</figcaption></figure>)}
+    </div>
+    <h3 class="sub">Display (live HTML5, animated)</h3>
+    <div class="banners">
+      {display.map((a) => <figure><iframe src={`${base}ads/${a.id}/`} width={a.w} height={a.h} title={a.label} loading="lazy" scrolling="no"></iframe><figcaption>{a.label}</figcaption></figure>)}
+    </div>
+    <p class="note">The landing page these point to: <a class="link" href={`${base}offers/late-season-cyclades/`}>Late season in the Cyclades</a>. Email: <a class="link" href={`${base}email/`}>the Tidewell letter</a>.</p>
+  </section>
+</Base>
+
+<style>
+  .b-hero { padding-top: clamp(56px, 8vw, 120px); padding-bottom: 40px; }
+  .b-hero h1 { margin: 12px 0 28px; max-width: 12ch; } .b-hero h1 em { font-style: italic; }
+  .b-sec { padding-top: clamp(56px, 7vw, 104px); }
+  .sh { font-size: 15px; font-family: var(--f-sans); font-weight: 700; letter-spacing: .16em; text-transform: uppercase; border-top: 1px solid var(--ink); padding-top: 16px; margin-bottom: 32px; }
+  .note { color: var(--ink-2); max-width: 70ch; margin: 24px 0 0; }
+  .logos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .lg { aspect-ratio: 4 / 3; display: grid; place-items: center; }
+  .lg :global(.word) { font-size: 46px; }
+  .l1 { background: var(--paper); color: var(--ink); } .l2 { background: var(--ink); color: var(--limewash); } .l3 { background: var(--terracotta); color: var(--paper); } .l4 { background: var(--sand); color: var(--terracotta-dk); }
+  .type { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .spec { background: var(--paper); padding: 32px; } .aa { font-size: 140px; line-height: 1; margin: 0; }
+  .s1 .aa, .s1 .sample { font-family: var(--f-display); } .s2 .aa { font-family: var(--f-sans); font-weight: 600; }
+  .fname { font-weight: 700; margin: 12px 0 4px; } .sample { font-size: 40px; margin: 24px 0 0; line-height: 1.1; } .sample2 { font-size: 20px; margin: 24px 0 0; font-variant-numeric: tabular-nums; }
+  .scale { margin-top: 12px; background: var(--paper); padding: 32px; }
+  .scale p { margin: 0 0 10px; } .t1 { font-family: var(--f-display); font-size: clamp(48px, 8vw, 132px); line-height: 1; } .t2 { font-family: var(--f-display); font-size: clamp(36px, 5vw, 76px); line-height: 1; }
+  .t3 { font-family: var(--f-display); font-size: 32px; } .t4 { max-width: 60ch; } .t5 { font-size: 13px; letter-spacing: .16em; font-weight: 700; color: var(--terracotta-dk); }
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .swatch { aspect-ratio: 3 / 4; padding: 18px; display: flex; flex-direction: column; box-shadow: inset 0 0 0 1px var(--line); }
+  .cn { font-family: var(--f-display); font-size: 26px; margin: 0; } .hx { margin: 4px 0 auto; font-variant-numeric: tabular-nums; font-size: 14px; } .cr { font-size: 13.5px; line-height: 1.4; margin: 0; }
+  .photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; } .photos .frame { aspect-ratio: 3 / 4; }
+  .rules { list-style: none; padding: 0; margin: 24px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; } .rules li { border-top: 1px solid var(--line); padding-top: 12px; }
+  .voice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .voice > div { background: var(--paper); padding: 24px 28px; }
+  .v-say, .v-not { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; margin: 0 0 8px; } .v-say { color: var(--olive); } .v-not { color: var(--terracotta-dk); }
+  .v { font-family: var(--f-display); font-size: 26px; line-height: 1.25; margin: 0; } .v.no { text-decoration: line-through; text-decoration-thickness: 1px; color: var(--ink-3); }
+  .comp { display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start; }
+  .btns { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .tpl { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+  .tpl a { display: grid; grid-template-columns: 220px 1fr auto; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--line); text-decoration: none; align-items: baseline; transition: padding .5s var(--ease), color .3s; }
+  .tpl a:hover { padding-left: 16px; color: var(--terracotta-dk); }
+  .tl { font-family: var(--f-display); font-size: 32px; } .tn { color: var(--ink-2); }
+  .sub { font-family: var(--f-sans); font-size: 18px; font-weight: 700; margin: 40px 0 16px; }
+  .stills { display: grid; grid-template-columns: 1fr 1fr .62fr 1fr; gap: 16px; align-items: start; }
+  .stills img { width: 100%; height: auto; box-shadow: 0 20px 40px -24px rgba(20,32,51,.5); }
+  figcaption { font-size: 13px; color: var(--ink-3); margin-top: 8px; } figure { margin: 0; }
+  .banners { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; padding-bottom: 24px; }
+  .banners iframe { border: 0; display: block; max-width: 100%; box-shadow: 0 20px 40px -24px rgba(20,32,51,.5); }
+  #campaign { padding-bottom: clamp(80px, 10vw, 140px); }
+  @media (max-width: 900px) {
+    .photos { grid-template-columns: 1fr 1fr; } .logos, .type, .voice, .rules, .comp { grid-template-columns: 1fr; } .lg { min-width: 0; overflow: hidden; }
+    .sw { grid-template-columns: 1fr 1fr; } .stills { grid-template-columns: 1fr 1fr; }
+    .tpl a { grid-template-columns: 1fr auto; } .tn { grid-column: 1; grid-row: 2; }
+    .banners figure:has(iframe[width="728"]) { display: none; }
+  }
+</style>

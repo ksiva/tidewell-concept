@@ -1,0 +1,49 @@
+---
+import Logo from "./Logo.astro";
+import { regions } from "../data/hotels";
+const base = import.meta.env.BASE_URL;
+const { bare = false } = Astro.props;
+---
+<footer class="site-footer">
+  <div class="wrap">
+    {!bare && (
+      <div class="news">
+        <div>
+          <p class="eyebrow">The Tidewell letter</p>
+          <h2 class="nl">One new hotel, one place to swim. <span class="it">Every second Sunday.</span></h2>
+        </div>
+        <form class="nl-form" onsubmit="event.preventDefault(); this.classList.add('done')">
+          <label class="sr-only" for="nl-email">Email address</label>
+          <input id="nl-email" type="email" required placeholder="Your email" autocomplete="email" />
+          <button class="btn light" type="submit">Subscribe <span class="arr">→</span></button>
+          <p class="ok">Thank you. (Concept site: nothing was sent.)</p>
+        </form>
+      </div>
+    )}
+    <div class="cols">
+      <div><Logo /><p class="muted small">Small hotels by the Mediterranean, chosen by hand.</p></div>
+      <div><p class="h">Regions</p><ul>{regions.map((r) => <li><a href={`${base}hotels/`}>{r}</a></li>)}</ul></div>
+      <div><p class="h">Read</p><ul><li><a href={`${base}journal/cyclades-by-ferry/`}>Journal</a></li><li><a href={`${base}offers/late-season-cyclades/`}>Offers</a></li><li><a href={`${base}brand/`}>Brand book</a></li></ul></div>
+      <div><p class="h">This project</p><ul><li><a href={`${base}brand/#campaign`}>Campaign assets</a></li><li><a href={`${base}credits/`}>Photo credits</a></li></ul></div>
+    </div>
+    <p class="legal">Concept / spec work. Tidewell and all hotels shown are fictional. Photography from Unsplash under the Unsplash License, sources listed on the credits page. Fonts: Bodoni Moda and Hanken Grotesk (SIL Open Font License).</p>
+  </div>
+</footer>
+<style>
+  .site-footer { background: var(--ink); color: var(--limewash); padding: 96px 0 40px; margin-top: 0; }
+  .news { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; padding-bottom: 72px; border-bottom: 1px solid rgba(243,238,228,.18); }
+  .news .eyebrow { color: #e3a07f; }
+  .nl { font-size: clamp(32px, 3.6vw, 54px); margin-top: 12px; }
+  .nl-form { display: flex; flex-wrap: wrap; gap: 10px; }
+  .nl-form input { flex: 1 1 220px; background: transparent; border: 0; border-bottom: 1px solid rgba(243,238,228,.5); padding: 14px 2px; color: var(--limewash); font-size: 17px; }
+  .nl-form input::placeholder { color: rgba(243,238,228,.6); }
+  .nl-form .ok { display: none; width: 100%; margin: 8px 0 0; color: #e3a07f; }
+  .nl-form:global(.done) .ok { display: block; }
+  .cols { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; padding: 56px 0; }
+  .cols ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .cols a { text-decoration: none; opacity: .85; } .cols a:hover { opacity: 1; text-decoration: underline; }
+  .h { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; opacity: .6; margin: 0 0 14px; }
+  .small { font-size: 15px; color: rgba(243,238,228,.7); max-width: 28ch; }
+  .legal { font-size: 13px; color: rgba(243,238,228,.6); border-top: 1px solid rgba(243,238,228,.18); padding-top: 24px; margin: 0; max-width: 90ch; }
+  @media (max-width: 800px) { .news, .cols { grid-template-columns: 1fr 1fr; } .news { grid-template-columns: 1fr; } .cols > :first-child { grid-column: 1 / -1; } }
+</style>

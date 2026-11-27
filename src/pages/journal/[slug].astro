@@ -1,0 +1,97 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { bySlug } from "../../data/hotels";
+import { photo } from "../../data/photos";
+
+export async function getStaticPaths() {
+  const all = await getCollection("journal");
+  return all.map((s) => ({ params: { slug: s.id }, props: { s, all } }));
+}
+const { s, all } = Astro.props;
+const { Content } = await render(s);
+const base = import.meta.env.BASE_URL;
+const stay = bySlug(s.data.stay);
+const next = all.filter((x) => x.id !== s.id);
+const date = new Date(s.data.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+---
+<Base title={s.data.title} description={s.data.dek}>
+  <article>
+    <header class="a-head wrap">
+      <p class="eyebrow" data-fade data-now>{s.data.kicker}</p>
+      <h1 data-split data-now>{s.data.title}</h1>
+      <p class="dek" data-fade data-now>{s.data.dek}</p>
+      <p class="byline" data-fade data-now>Words by the Tidewell team · {date} · {s.data.minutes} min read</p>
+    </header>
+
+    <div class="cover"><div class="frame" data-reveal><Image src={photo(s.data.cover)} alt="" widths={[900, 1500, 2000]} sizes="100vw" loading="eager" /></div></div>
+
+    <div class="a-body wrap">
+      <aside class="rail" aria-label="Stay">
+        <a class="stay" href={`${base}hotels/${stay.slug}/`} data-cursor="View">
+          <p class="eyebrow">Where to stay</p>
+          <div class="frame"><Image src={photo(stay.cover)} alt={stay.name} widths={[400]} sizes="260px" /></div>
+          <h3>{stay.name}</h3>
+          <p class="muted">{stay.place} · from €{stay.fromEUR}</p>
+          <span class="link">Check availability</span>
+        </a>
+      </aside>
+      <div class="prose"><Content /></div>
+    </div>
+
+    <div class="pair wrap">
+      {s.data.inline.map((n) => <div class="frame" data-reveal><Image src={photo(n)} alt="" widths={[700, 1100]} sizes="(max-width: 800px) 92vw, 46vw" /></div>)}
+    </div>
+
+    <section class="cta-band">
+      <div class="wrap cb">
+        <div><p class="eyebrow">Stay here</p><h2>{stay.name}, <em>{stay.place}</em></h2><p class="lede">{stay.line}</p></div>
+        <a class="btn light" href={`${base}hotels/${stay.slug}/`} data-magnetic>See rooms from €{stay.fromEUR} <span class="arr">→</span></a>
+      </div>
+    </section>
+  </article>
+
+  <section class="more wrap">
+    <h2>Keep <em>reading</em></h2>
+    <div class="g2">
+      {next.map((n) => (
+        <a class="story" href={`${base}journal/${n.id}/`} data-cursor="Read">
+          <div class="frame"><div class="zoom"><Image src={photo(n.data.cover)} alt="" widths={[600, 900]} sizes="(max-width: 800px) 92vw, 46vw" /></div></div>
+          <p class="eyebrow">{n.data.kicker}</p><h3>{n.data.title}</h3>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .a-head { text-align: center; padding-top: clamp(56px, 8vw, 120px); padding-bottom: clamp(40px, 5vw, 72px); max-width: 1100px; }
+  .a-head h1 { font-size: clamp(48px, 7.5vw, 120px); margin: 14px auto 20px; }
+  .dek { font-family: var(--f-display); font-style: italic; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.3; max-width: 30ch; margin: 0 auto 22px; color: var(--ink-2); }
+  .byline { font-size: 14px; color: var(--ink-3); margin: 0; }
+  .cover .frame { height: min(82vh, 900px); }
+  .a-body { display: grid; grid-template-columns: 260px minmax(0, 680px); gap: clamp(32px, 6vw, 110px); justify-content: center; padding-top: clamp(56px, 7vw, 100px); padding-bottom: 72px; }
+  .rail { position: relative; } .stay { position: sticky; top: 110px; display: block; text-decoration: none; }
+  .stay .frame { aspect-ratio: 4 / 5; margin: 12px 0 14px; } .stay h3 { font-size: 26px; } .stay p { margin: 4px 0 12px; font-size: 15px; }
+  .prose { font-size: 19px; line-height: 1.75; }
+  .prose :global(p:first-of-type::first-letter) { font-family: var(--f-display); float: left; font-size: 5.4em; line-height: .82; padding: 8px 12px 0 0; color: var(--terracotta); }
+  .prose :global(h2) { font-size: clamp(30px, 3vw, 42px); margin: 56px 0 16px; }
+  .prose :global(blockquote) { margin: 48px 0; padding: 0; border: 0; font-family: var(--f-display); font-style: italic; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.2; color: var(--ink); position: relative; }
+  .prose :global(blockquote p) { margin: 0; } .prose :global(blockquote p::first-letter) { all: unset; }
+  .prose :global(blockquote::before) { content: ""; display: block; width: 64px; height: 3px; background: var(--terracotta); margin-bottom: 22px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } .pair .frame { aspect-ratio: 4 / 5; }
+  .cta-band { background: var(--sea); color: var(--paper); margin-top: clamp(72px, 9vw, 120px); padding: clamp(56px, 7vw, 96px) 0; }
+  .cb { display: flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; }
+  .cb .eyebrow { color: #fbe4d8; } .cb h2 em { font-style: italic; } .cb .lede { color: rgba(250,247,241,.85); margin: 14px 0 0; }
+  .more { padding: clamp(80px, 10vw, 140px) var(--gutter); } .more h2 { margin-bottom: 40px; } .more h2 em { font-style: italic; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .story { text-decoration: none; } .story .frame { aspect-ratio: 3 / 2; margin-bottom: 16px; }
+  .story .zoom { position: absolute; inset: 0; transition: transform 1.2s var(--ease); } .story:hover .zoom { transform: scale(1.06); }
+  .story h3 { margin-top: 6px; }
+  @media (max-width: 900px) {
+    .a-body { grid-template-columns: 1fr; } .rail { order: 2; } .stay { position: static; display: grid; grid-template-columns: 120px 1fr; gap: 0 16px; }
+    .stay .eyebrow { grid-column: 1 / -1; } .stay .frame { grid-row: span 3; margin: 8px 0 0; }
+    .pair, .g2 { grid-template-columns: 1fr; } .cover .frame { height: 60vh; }
+  }
+</style>
